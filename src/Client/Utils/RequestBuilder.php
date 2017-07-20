@@ -8,12 +8,30 @@ use Mcustiel\Phiremock\Domain\Request;
 
 class RequestBuilder
 {
+    /**
+     * @var \Mcustiel\Phiremock\Domain\Request
+     */
     private $request;
+    /**
+     * @var array
+     */
     private $headers = [];
+    /**
+     * @var string
+     */
     private $scenarioName;
+    /**
+     * @var string
+     */
     private $scenarioIs;
+    /**
+     * @var int
+     */
     private $priority;
 
+    /**
+     * @param string $method
+     */
     private function __construct($method)
     {
         $this->request = new Request();
@@ -89,6 +107,9 @@ class RequestBuilder
         $this->priority = $priority;
     }
 
+    /**
+     * @return \Mcustiel\Phiremock\Domain\Expectation
+     */
     public function build()
     {
         if (!empty($this->headers)) {

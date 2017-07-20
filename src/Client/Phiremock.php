@@ -37,6 +37,11 @@ class Phiremock
      */
     private $port;
 
+    /**
+     * @param string $host
+     * @param int $port
+     * @param RemoteConnectionInterface $remoteConnection
+     */
     public function __construct(
         $host = 'localhost',
         $port = 8080,
@@ -164,6 +169,9 @@ class Phiremock
         return new ExpectationBuilder($requestBuilder);
     }
 
+    /**
+     * @return \Zend\Diactoros\Uri
+     */
     private function createBaseUri()
     {
         return (new Uri())
@@ -201,6 +209,9 @@ class Phiremock
         }
     }
 
+    /**
+     * @return \Mcustiel\SimpleRequest\RequestBuilder
+     */
     private function getRequestBuilder()
     {
         if ($this->simpleRequestBuilder === null) {
