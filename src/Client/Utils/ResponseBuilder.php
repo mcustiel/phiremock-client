@@ -15,7 +15,6 @@ class ResponseBuilder
      */
     private $headers = [];
     /**
-     *
      * @var string
      */
     private $scenarioState;

@@ -7,7 +7,6 @@ use Mcustiel\Phiremock\Domain\Response;
 class ExpectationBuilder
 {
     /**
-     *
      * @var \Mcustiel\Phiremock\Domain\Expectation
      */
     private $expectation;
