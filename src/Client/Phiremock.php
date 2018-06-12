@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of Phiremock.
+ *
+ * Phiremock is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Phiremock is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Phiremock.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace Mcustiel\Phiremock\Client;
 
@@ -10,6 +26,7 @@ use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\RequestBuilderFactory;
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Response;
+use Mcustiel\Phiremock\Domain\ScenarioState;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Request as PsrRequest;
 use Zend\Diactoros\Uri;
@@ -19,6 +36,10 @@ class Phiremock
     const API_EXPECTATIONS_URL = '/__phiremock/expectations';
     const API_EXECUTIONS_URL = '/__phiremock/executions';
     const API_SCENARIOS_URL = '/__phiremock/scenarios';
+    const API_RESET_URL = '/__phiremock/reset';
+    const CLIENT_CONFIG = [
+        'http_errors' => false,
+    ];
 
     /**
      * @var \Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface
@@ -48,7 +69,9 @@ class Phiremock
         RemoteConnectionInterface $remoteConnection = null
     ) {
         if (!$remoteConnection) {
-            $remoteConnection = new GuzzleConnection();
+            $remoteConnection = new GuzzleConnection(
+                new \GuzzleHttp\Client(self::CLIENT_CONFIG)
+            );
         }
         $this->host = $host;
         $this->port = $port;
@@ -63,11 +86,26 @@ class Phiremock
     public function createExpectation(Expectation $expectation)
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
+        $body = @json_encode($expectation);
+        if (false === $body) {
+            throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
+        }
         $request = (new PsrRequest())
             ->withUri($uri)
             ->withMethod('post')
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(new StringStream(json_encode($expectation)));
+            ->withBody(new StringStream($body));
+        $this->checkResponse($this->connection->send($request));
+    }
+
+    /**
+     * Restores pre-defined expectations and resets scenarios and requests counter.
+     */
+    public function reset()
+    {
+        $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
+        $request = (new PsrRequest())->withUri($uri)->withMethod('post');
+
         $this->checkResponse($this->connection->send($request));
     }
 
@@ -93,7 +131,7 @@ class Phiremock
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
         $response = $this->connection->send($request);
 
-        if ($response->getStatusCode() === 200) {
+        if (200 === $response->getStatusCode()) {
             $builder = $this->getRequestBuilder();
 
             return $builder->parseRequest(
@@ -126,13 +164,61 @@ class Phiremock
 
         $response = $this->connection->send($request);
 
-        if ($response->getStatusCode() === 200) {
+        if (200 === $response->getStatusCode()) {
             $json = json_decode($response->getBody()->__toString());
 
             return $json->count;
         }
 
         $this->checkErrorResponse($response);
+    }
+
+    /**
+     * List requests was executed in phiremock.
+     *
+     * @param \Mcustiel\Phiremock\Client\Utils\RequestBuilder $requestBuilder
+     *
+     * @return array
+     */
+    public function listExecutions(RequestBuilder $requestBuilder)
+    {
+        $expectation = $requestBuilder->build();
+        $expectation->setResponse(new Response());
+        $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
+
+        $request = (new PsrRequest())
+            ->withUri($uri)
+            ->withMethod('put')
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody(new StringStream(json_encode($expectation)));
+
+        $response = $this->connection->send($request);
+
+        if (200 === $response->getStatusCode()) {
+            return json_decode($response->getBody()->__toString());
+        }
+
+        $this->checkErrorResponse($response);
+    }
+
+    /**
+     * Sets scenario state.
+     *
+     * @param \Mcustiel\Phiremock\Domain\ScenarioState $scenarioState
+     */
+    public function setScenarioState(ScenarioState $scenarioState)
+    {
+        $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
+        $request = (new PsrRequest())
+            ->withUri($uri)
+            ->withMethod('put')
+            ->withHeader('Content-Type', 'application/json')
+            ->withBody(new StringStream(json_encode($scenarioState)));
+
+        $response = $this->connection->send($request);
+        if (200 !== $response->getStatusCode()) {
+            $this->checkErrorResponse($response);
+        }
     }
 
     /**
@@ -170,6 +256,21 @@ class Phiremock
     }
 
     /**
+     * Shortcut.
+     *
+     * @param string $method
+     * @param string $url
+     *
+     * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
+     */
+    public static function onRequest($method, $url)
+    {
+        return new ExpectationBuilder(
+            RequestBuilder::create($method, $url)
+        );
+    }
+
+    /**
      * @return \Zend\Diactoros\Uri
      */
     private function createBaseUri()
@@ -185,7 +286,7 @@ class Phiremock
      */
     private function checkResponse(ResponseInterface $response)
     {
-        if ($response->getStatusCode() === 201) {
+        if (201 === $response->getStatusCode()) {
             return;
         }
 
@@ -200,8 +301,12 @@ class Phiremock
     private function checkErrorResponse(ResponseInterface $response)
     {
         if ($response->getStatusCode() >= 500) {
-            $error = json_decode($response->getBody()->__toString())->details;
-            throw new \RuntimeException('An error occurred creating the expectation: ' . $error);
+            $errors = json_decode($response->getBody()->__toString(), true)['details'];
+
+            throw new \RuntimeException(
+                'An error occurred creating the expectation: '
+                . ($errors ? var_export($errors, true) : '')
+                . $response->getBody()->__toString());
         }
 
         if ($response->getStatusCode() >= 400) {
@@ -214,7 +319,7 @@ class Phiremock
      */
     private function getRequestBuilder()
     {
-        if ($this->simpleRequestBuilder === null) {
+        if (null === $this->simpleRequestBuilder) {
             $this->simpleRequestBuilder = RequestBuilderFactory::createRequestBuilder();
         }
 

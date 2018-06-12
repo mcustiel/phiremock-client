@@ -1,4 +1,20 @@
 <?php
+/**
+ * This file is part of Phiremock.
+ *
+ * Phiremock is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Phiremock is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Phiremock.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
@@ -8,44 +24,30 @@ use Mcustiel\Phiremock\Domain\Request;
 
 class RequestBuilder
 {
-    /**
-     * @var \Mcustiel\Phiremock\Domain\Request
-     */
     private $request;
-    /**
-     * @var array
-     */
     private $headers = [];
-    /**
-     * @var string
-     */
     private $scenarioName;
-    /**
-     * @var string
-     */
     private $scenarioIs;
-    /**
-     * @var int
-     */
     private $priority;
 
-    /**
-     * @param string $method
-     */
-    private function __construct($method)
+    private function __construct($method, $url = null)
     {
         $this->request = new Request();
         $this->request->setMethod($method);
+        if (null !== $url) {
+            $this->request->setUrl(new Condition('isEqualTo', $url));
+        }
     }
 
     /**
-     * @param string $method
+     * @param string     $method
+     * @param null|mixed $url
      *
      * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
      */
-    public static function create($method)
+    public static function create($method, $url = null)
     {
-        return new static($method);
+        return new static($method, $url);
     }
 
     /**

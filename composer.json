@@ -23,7 +23,7 @@
     "name" : "mcustiel/phiremock-client",
     "type" : "project",
     "description" : "Client library to communicate with Phiremock server",
-    "license" : "GPL-3.0+",
+    "license" : "GPL-3.0-or-later",
     "require" : {
         "php" : ">=5.6",
         "react/http" : "~0.7.0",
