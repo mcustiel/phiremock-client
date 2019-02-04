@@ -23,7 +23,3 @@ build:
         redis: false
         php:
             version: 5.6.9
-    tests:
-        override:
-            -
-                command: ./vendor/bin/codecept build -c tests && ./vendor/bin/codecept run acceptance -c tests
