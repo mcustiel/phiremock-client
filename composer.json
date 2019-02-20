@@ -20,13 +20,13 @@
             "Mcustiel\\Phiremock\\" : "src"
         }
     },
-    "name" : "mcustiel/phiremock-client",
+    "name" : "phiremock/phiremock-client",
     "type" : "project",
     "description" : "Client library to communicate with Phiremock server",
     "license" : "GPL-3.0-or-later",
     "require" : {
         "php" : ">=5.6",
         "react/http" : "~0.7 || ~0.8",
-        "mcustiel/phiremock-common" : "~1.0"
+        "phiremock/phiremock-common" : "~1.0"
     }
 }
