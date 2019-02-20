@@ -17,16 +17,16 @@
     ],
     "autoload" : {
         "psr-4" : {
-            "Mcustiel\\Phiremock\\" : "src"
+            "Mcustiel\\Phiremock\\Client\\" : "src"
         }
     },
-    "name" : "phiremock/phiremock-client",
+    "name" : "mcustiel/phiremock-client",
     "type" : "project",
     "description" : "Client library to communicate with Phiremock server",
     "license" : "GPL-3.0-or-later",
     "require" : {
         "php" : ">=5.6",
         "react/http" : "~0.7 || ~0.8",
-        "phiremock/phiremock-common" : "~1.0"
+        "mcustiel/phiremock-common" : "~1.0"
     }
 }
