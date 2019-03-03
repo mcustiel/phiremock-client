@@ -19,6 +19,7 @@
 namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Condition;
+use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
 
 class Is
 {
@@ -29,7 +30,7 @@ class Is
      */
     public static function equalTo($value)
     {
-        return new Condition('isEqualTo', $value);
+        return new Condition(MatchersEnum::EQUAL_TO, $value);
     }
 
     /**
@@ -39,7 +40,7 @@ class Is
      */
     public static function matching($value)
     {
-        return new Condition('matches', $value);
+        return new Condition(MatchersEnum::MATCHES, $value);
     }
 
     /**
@@ -49,7 +50,7 @@ class Is
      */
     public static function sameStringAs($value)
     {
-        return new Condition('isSameString', $value);
+        return new Condition(MatchersEnum::SAME_STRING, $value);
     }
 
     /**
@@ -59,7 +60,7 @@ class Is
      */
     public static function containing($value)
     {
-        return new Condition('contains', $value);
+        return new Condition(MatchersEnum::CONTAINS, $value);
     }
 
     /**
@@ -70,9 +71,9 @@ class Is
     public static function sameJsonObjectAs($value)
     {
         if (\is_string($value)) {
-            return new Condition('isSameJsonObject', $value);
+            return new Condition(MatchersEnum::SAME_JSON, $value);
         }
 
-        return new Condition('isSameJsonObject', json_encode($value));
+        return new Condition(MatchersEnum::SAME_JSON, json_encode($value));
     }
 }

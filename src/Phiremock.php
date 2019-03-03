@@ -18,15 +18,16 @@
 
 namespace Mcustiel\Phiremock\Client;
 
+use Mcustiel\Phiremock\Client\Connection\Host;
+use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
 use Mcustiel\Phiremock\Client\Utils\RequestBuilder;
-use Mcustiel\Phiremock\Common\Http\Implementation\GuzzleConnection;
 use Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface;
 use Mcustiel\Phiremock\Common\StringStream;
-use Mcustiel\Phiremock\Common\Utils\RequestBuilderFactory;
+use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Response;
-use Mcustiel\Phiremock\Domain\ScenarioState;
+use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Request as PsrRequest;
 use Zend\Diactoros\Uri;
@@ -37,45 +38,29 @@ class Phiremock
     const API_EXECUTIONS_URL = '/__phiremock/executions';
     const API_SCENARIOS_URL = '/__phiremock/scenarios';
     const API_RESET_URL = '/__phiremock/reset';
-    const CLIENT_CONFIG = [
-        'http_errors' => false,
-    ];
 
-    /**
-     * @var \Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface
-     */
+    /** @var RemoteConnectionInterface */
     private $connection;
-    /**
-     * @var \Mcustiel\SimpleRequest\RequestBuilder
-     */
-    private $simpleRequestBuilder;
-    /**
-     * @var string
-     */
+
+    /** @var ArrayToExpectationConverter */
+    private $converter;
+
+    /** @var Host */
     private $host;
-    /**
-     * @var int
-     */
+
+    /** @var Port */
     private $port;
 
-    /**
-     * @param string                    $host
-     * @param int                       $port
-     * @param RemoteConnectionInterface $remoteConnection
-     */
     public function __construct(
-        $host = 'localhost',
-        $port = 8080,
-        RemoteConnectionInterface $remoteConnection = null
+        Host $host,
+        Port $port,
+        RemoteConnectionInterface $remoteConnection,
+        ArrayToExpectationConverter $arrayToExpectationConverter
     ) {
-        if (!$remoteConnection) {
-            $remoteConnection = new GuzzleConnection(
-                new \GuzzleHttp\Client(self::CLIENT_CONFIG)
-            );
-        }
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
+        $this->converter = $arrayToExpectationConverter;
     }
 
     /**
@@ -86,6 +71,7 @@ class Phiremock
     public function createExpectation(Expectation $expectation)
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
+        // TODO: Add converter from expectation to array
         $body = @json_encode($expectation);
         if (false === $body) {
             throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
@@ -132,11 +118,8 @@ class Phiremock
         $response = $this->connection->send($request);
 
         if (200 === $response->getStatusCode()) {
-            $builder = $this->getRequestBuilder();
-
-            return $builder->parseRequest(
-                json_decode($response->getBody()->__toString(), true),
-                [Expectation::class]
+            return $this->converter->convert(
+                json_decode($response->getBody()->__toString(), true)
             );
         }
 
@@ -204,9 +187,9 @@ class Phiremock
     /**
      * Sets scenario state.
      *
-     * @param \Mcustiel\Phiremock\Domain\ScenarioState $scenarioState
+     * @param \Mcustiel\Phiremock\Domain\ScenarioStateInfo $scenarioState
      */
-    public function setScenarioState(ScenarioState $scenarioState)
+    public function setScenarioState(ScenarioStateInfo $scenarioState)
     {
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())
@@ -277,8 +260,8 @@ class Phiremock
     {
         return (new Uri())
             ->withScheme('http')
-            ->withHost($this->host)
-            ->withPort($this->port);
+            ->withHost($this->host->asString())
+            ->withPort($this->port->asInt());
     }
 
     /**
@@ -312,17 +295,5 @@ class Phiremock
         if ($response->getStatusCode() >= 400) {
             throw new \RuntimeException('Request error while creating the expectation');
         }
-    }
-
-    /**
-     * @return \Mcustiel\SimpleRequest\RequestBuilder
-     */
-    private function getRequestBuilder()
-    {
-        if (null === $this->simpleRequestBuilder) {
-            $this->simpleRequestBuilder = RequestBuilderFactory::createRequestBuilder();
-        }
-
-        return $this->simpleRequestBuilder;
     }
 }

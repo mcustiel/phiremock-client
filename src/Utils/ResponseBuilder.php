@@ -18,7 +18,15 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\BinaryInfo;
+use Mcustiel\Phiremock\Domain\Http\BinaryBody;
+use Mcustiel\Phiremock\Domain\Http\Body;
+use Mcustiel\Phiremock\Domain\Http\Header;
+use Mcustiel\Phiremock\Domain\Http\HeaderName;
+use Mcustiel\Phiremock\Domain\Http\HeadersCollection;
+use Mcustiel\Phiremock\Domain\Http\HeaderValue;
+use Mcustiel\Phiremock\Domain\Http\StatusCode;
+use Mcustiel\Phiremock\Domain\Options\Delay;
+use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\Response;
 
 class ResponseBuilder
@@ -31,7 +39,7 @@ class ResponseBuilder
     /**
      * @var array
      */
-    private $headers = [];
+    private $headers;
 
     /**
      * @var string
@@ -41,8 +49,9 @@ class ResponseBuilder
     /**
      * @param int $statusCode
      */
-    private function __construct($statusCode)
+    public function __construct(StatusCode $statusCode)
     {
+        $this->headers = new HeadersCollection();
         $this->response = new Response();
         $this->response->setStatusCode($statusCode);
     }
@@ -54,7 +63,7 @@ class ResponseBuilder
      */
     public static function create($statusCode)
     {
-        return new static($statusCode);
+        return new static(new StatusCode($statusCode));
     }
 
     /**
@@ -64,7 +73,7 @@ class ResponseBuilder
      */
     public function andBody($body)
     {
-        $this->response->setBody($body);
+        $this->response->setBody(new Body($body));
 
         return $this;
     }
@@ -76,7 +85,7 @@ class ResponseBuilder
      */
     public function andBinaryBody($body)
     {
-        $this->response->setBody(BinaryInfo::BINARY_BODY_PREFIX . base64_encode($body));
+        $this->response->setBody(new BinaryBody($body));
 
         return $this;
     }
@@ -89,7 +98,10 @@ class ResponseBuilder
      */
     public function andHeader($header, $value)
     {
-        $this->headers[$header] = $value;
+        $this->response->getHeaders()
+            ->setHeader(
+                new Header(new HeaderName($header), new HeaderValue($value))
+            );
 
         return $this;
     }
@@ -101,7 +113,7 @@ class ResponseBuilder
      */
     public function andDelayInMillis($delay)
     {
-        $this->response->setDelayMillis($delay);
+        $this->response->setDelayMillis(new Delay($delay));
 
         return $this;
     }
@@ -113,20 +125,16 @@ class ResponseBuilder
      */
     public function andSetScenarioStateTo($scenarioState)
     {
-        $this->scenarioState = $scenarioState;
+        $this->scenarioState = new ScenarioState($scenarioState);
 
         return $this;
     }
 
     /**
-     * @return string[]|\Mcustiel\Phiremock\Domain\Response[]
+     * @return ResponseBuilderResult
      */
     public function build()
     {
-        if (!empty($this->headers)) {
-            $this->response->setHeaders($this->headers);
-        }
-
-        return [$this->scenarioState, $this->response];
+        return new ResponseBuilderResult($this->response, $this->scenarioState);
     }
 }

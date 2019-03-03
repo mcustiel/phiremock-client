@@ -18,6 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
+
 class A
 {
     /**
@@ -25,7 +27,7 @@ class A
      */
     public static function getRequest()
     {
-        return RequestBuilder::create('get');
+        return RequestBuilder::create(MethodsEnum::GET);
     }
 
     /**
@@ -33,7 +35,7 @@ class A
      */
     public static function postRequest()
     {
-        return RequestBuilder::create('post');
+        return RequestBuilder::create(MethodsEnum::POST);
     }
 
     /**
@@ -41,7 +43,7 @@ class A
      */
     public static function putRequest()
     {
-        return RequestBuilder::create('put');
+        return RequestBuilder::create(MethodsEnum::PUT);
     }
 
     /**
@@ -49,7 +51,7 @@ class A
      */
     public static function optionsRequest()
     {
-        return RequestBuilder::create('options');
+        return RequestBuilder::create(MethodsEnum::OPTIONS);
     }
 
     /**
@@ -57,7 +59,7 @@ class A
      */
     public static function headRequest()
     {
-        return RequestBuilder::create('head');
+        return RequestBuilder::create(MethodsEnum::HEAD);
     }
 
     /**
@@ -65,7 +67,7 @@ class A
      */
     public static function fetchRequest()
     {
-        return RequestBuilder::create('fetch');
+        return RequestBuilder::create(MethodsEnum::FETCH);
     }
 
     /**
@@ -73,7 +75,7 @@ class A
      */
     public static function deleteRequest()
     {
-        return RequestBuilder::create('delete');
+        return RequestBuilder::create(MethodsEnum::DELETE);
     }
 
     /**
@@ -81,6 +83,6 @@ class A
      */
     public static function patchRequest()
     {
-        return RequestBuilder::create('patch');
+        return RequestBuilder::create(MethodsEnum::PATCH);
     }
 }

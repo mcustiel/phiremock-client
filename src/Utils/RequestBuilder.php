@@ -19,35 +19,53 @@
 namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Condition;
+use Mcustiel\Phiremock\Domain\Conditions\BodyCondition;
+use Mcustiel\Phiremock\Domain\Conditions\HeaderCondition;
+use Mcustiel\Phiremock\Domain\Conditions\HeaderConditionCollection;
+use Mcustiel\Phiremock\Domain\Conditions\Matcher;
+use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Expectation;
+use Mcustiel\Phiremock\Domain\Http\BinaryBody;
+use Mcustiel\Phiremock\Domain\Http\HeaderName;
+use Mcustiel\Phiremock\Domain\Http\Method;
+use Mcustiel\Phiremock\Domain\Http\Url;
+use Mcustiel\Phiremock\Domain\Options\Priority;
+use Mcustiel\Phiremock\Domain\Options\ScenarioName;
+use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\Request;
 
 class RequestBuilder
 {
+    /** @var Request */
     private $request;
-    private $headers = [];
+    /** @var HeaderConditionCollection */
+    private $headers;
+    /** @var ScenarioName */
     private $scenarioName;
+    /** @var ScenarioState */
     private $scenarioIs;
+    /** @var Priority */
     private $priority;
 
-    private function __construct($method, $url = null)
+    public function __construct(Method $method, Url $url = null)
     {
+        $this->headers = new HeaderConditionCollection();
         $this->request = new Request();
         $this->request->setMethod($method);
         if (null !== $url) {
-            $this->request->setUrl(new Condition('isEqualTo', $url));
+            $this->request->setUrl(new UrlCondition(Matcher::equalTo(), $url->asString()));
         }
     }
 
     /**
-     * @param string     $method
-     * @param null|mixed $url
+     * @param string      $method
+     * @param null|string $url
      *
      * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
      */
     public static function create($method, $url = null)
     {
-        return new static($method, $url);
+        return new static(new Method($method), null === $url ? null : new Url($url));
     }
 
     /**
@@ -57,7 +75,21 @@ class RequestBuilder
      */
     public function andBody(Condition $condition)
     {
-        $this->request->setBody($condition);
+        $this->request->setBody(BodyCondition::fromCondition($condition));
+
+        return $this;
+    }
+
+    /**
+     * @param \Mcustiel\Phiremock\Domain\Condition $condition
+     *
+     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     */
+    public function andBinaryBody(Condition $condition)
+    {
+        $this->request->setBody(
+            new BodyCondition($condition->getMatcher(), new BinaryBody($condition->getValue()))
+        );
 
         return $this;
     }
@@ -70,7 +102,11 @@ class RequestBuilder
      */
     public function andHeader($header, Condition $condition)
     {
-        $this->headers[$header] = $condition;
+        $this->request->getHeaders()
+            ->setHeaderCondition(
+                new HeaderName($header),
+                HeaderCondition::fromCondition($condition)
+            );
 
         return $this;
     }
@@ -82,7 +118,7 @@ class RequestBuilder
      */
     public function andUrl(Condition $condition)
     {
-        $this->request->setUrl($condition);
+        $this->request->setUrl(UrlCondition::fromCondition($condition));
 
         return $this;
     }
@@ -95,8 +131,8 @@ class RequestBuilder
      */
     public function andScenarioState($scenario, $scenarioState)
     {
-        $this->scenarioName = $scenario;
-        $this->scenarioIs = $scenarioState;
+        $this->scenarioName = new ScenarioName($scenario);
+        $this->scenarioIs = new ScenarioState($scenarioState);
 
         return $this;
     }
@@ -106,7 +142,7 @@ class RequestBuilder
      */
     public function andPriority($priority)
     {
-        $this->priority = $priority;
+        $this->priority = new Priority($priority);
     }
 
     /**
@@ -114,9 +150,6 @@ class RequestBuilder
      */
     public function build()
     {
-        if (!empty($this->headers)) {
-            $this->request->setHeaders($this->headers);
-        }
         $expectation = new Expectation();
         $expectation->setRequest($this->request);
         $this->setScenario($expectation);
@@ -130,8 +163,8 @@ class RequestBuilder
      */
     private function setPriority(Expectation $expectation)
     {
-        if ($this->priority) {
-            $expectation->setPriority((int) $this->priority);
+        if (null !== $this->priority) {
+            $expectation->setPriority($this->priority);
         }
     }
 
