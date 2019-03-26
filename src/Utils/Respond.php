@@ -18,8 +18,6 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Http\StatusCode;
-
 class Respond
 {
     /**
@@ -27,8 +25,8 @@ class Respond
      *
      * @return \Mcustiel\Phiremock\Client\Utils\ResponseBuilder
      */
-    public static function withStatusCode(StatusCode $status)
+    public static function withStatusCode($status)
     {
-        return ResponseBuilder::create($status);
+        return HttpResponseBuilder::create($status);
     }
 }

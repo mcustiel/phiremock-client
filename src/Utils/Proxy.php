@@ -18,28 +18,16 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Options\ScenarioState;
-
-abstract class ResponseBuilder
+class Proxy
 {
-    /** @var ScenarioState */
-    private $scenarioState;
-
     /**
-     * @param string $scenarioState
+     * @param int   $status
+     * @param mixed $url
      *
      * @return \Mcustiel\Phiremock\Client\Utils\ResponseBuilder
      */
-    public function andSetScenarioStateTo($scenarioState)
+    public static function to($url)
     {
-        $this->scenarioState = new ScenarioState($scenarioState);
-
-        return $this;
-    }
-
-    /** @return \Mcustiel\Phiremock\Domain\Options\ScenarioState */
-    protected function getScenarioState()
-    {
-        return $this->scenarioState;
+        return new ProxyResponseBuilder($url);
     }
 }

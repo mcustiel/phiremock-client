@@ -18,12 +18,12 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Http\Uri;
+use Mcustiel\Phiremock\Domain\MockConfig;
 
 class ExpectationBuilder
 {
     /**
-     * @var \Mcustiel\Phiremock\Domain\Expectation
+     * @var \Mcustiel\Phiremock\Domain\MockConfig
      */
     private $expectation;
 
@@ -38,15 +38,16 @@ class ExpectationBuilder
     /**
      * @param \Mcustiel\Phiremock\Domain\Response $responseBuilder
      *
-     * @return \Mcustiel\Phiremock\Domain\Expectation
+     * @return \Mcustiel\Phiremock\Domain\MockConfig
      */
     public function then(ResponseBuilder $responseBuilder)
     {
-        $responseBuilderResult = $responseBuilder->build();
-
-        return $this->expectation
-            ->setNewScenarioState($responseBuilderResult->getScenarioState())
-            ->setResponse($responseBuilderResult->getResponse());
+        return new MockConfig(
+            $this->expectation->getRequest(),
+            $this->expectation->getStateConditions(),
+            $responseBuilder->build(),
+            $this->expectation->getPriority()
+        );
     }
 
     /**
@@ -66,25 +67,4 @@ class ExpectationBuilder
 
         return $this->expectation->setResponse($response);
     }
-
-    /**
-     * @param string $url
-     *
-     * @throws \Exception
-     *
-     * @return \Mcustiel\Phiremock\Domain\Expectation
-     */
-    public function proxyTo($url)
-    {
-        // return $this->noResponse()->setProxyTo(new Uri($url));
-        return $this->expectation->setProxyTo(new Uri($url));
-    }
-
-    /*
-     * @return \Mcustiel\Phiremock\Domain\Expectation
-     */
-//     public function noResponse()
-//     {
-//         return $this->expectation->setResponse(new Response());
-//     }
 }

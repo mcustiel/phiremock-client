@@ -8,10 +8,10 @@ use Mcustiel\Phiremock\Domain\Conditions\BodyCondition;
 use Mcustiel\Phiremock\Domain\Conditions\Matcher;
 use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
-use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
-use Mcustiel\Phiremock\Domain\Request;
+use Mcustiel\Phiremock\Domain\MockConfig;
+use Mcustiel\Phiremock\Domain\RequestConditions;
 use PHPUnit\Framework\TestCase;
 
 class RequestBuilderTest extends TestCase
@@ -24,8 +24,8 @@ class RequestBuilderTest extends TestCase
         $this->builder = new RequestBuilder(Method::delete());
         $expectation = $this->builder->build();
 
-        $this->assertInstanceOf(Expectation::class, $expectation);
-        $this->assertInstanceOf(Request::class, $expectation->getRequest());
+        $this->assertInstanceOf(MockConfig::class, $expectation);
+        $this->assertInstanceOf(RequestConditions::class, $expectation->getRequest());
         $request = $expectation->getRequest();
         $this->assertSame(
             MethodsEnum::DELETE,
@@ -54,8 +54,8 @@ class RequestBuilderTest extends TestCase
 
         $expectation = $this->builder->build();
 
-        $this->assertInstanceOf(Expectation::class, $expectation);
-        $this->assertInstanceOf(Request::class, $expectation->getRequest());
+        $this->assertInstanceOf(MockConfig::class, $expectation);
+        $this->assertInstanceOf(RequestConditions::class, $expectation->getRequest());
         $request = $expectation->getRequest();
         $this->assertSame(
             MethodsEnum::DELETE,
