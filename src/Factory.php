@@ -38,6 +38,7 @@ class Factory
         $this->phiremockFactory = $factory;
     }
 
+    /** @return \Mcustiel\Phiremock\Client\Phiremock */
     public function createPhiremockClient(Host $host, Port $port)
     {
         return new Phiremock(
@@ -48,6 +49,7 @@ class Factory
         );
     }
 
+    /** @return GuzzleConnection */
     public function createRemoteConnection()
     {
         return new GuzzleConnection(

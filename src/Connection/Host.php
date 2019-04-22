@@ -16,15 +16,13 @@ class Host
         $this->host = $host;
     }
 
-    /** @return \Mcustiel\Phiremock\Client\Connection\Host */
+    /** @return self */
     public static function createLocalhost()
     {
         return new self('localhost');
     }
 
-    /**
-     * @return string
-     */
+    /** @return string */
     public function asString()
     {
         return $this->host;

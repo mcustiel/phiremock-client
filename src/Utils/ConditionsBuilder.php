@@ -28,14 +28,12 @@ use Mcustiel\Phiremock\Domain\Http\BinaryBody;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\Url;
-use Mcustiel\Phiremock\Domain\MockConfig;
 use Mcustiel\Phiremock\Domain\Options\Priority;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\RequestConditions;
-use Mcustiel\Phiremock\Domain\StateConditions;
 
-class RequestBuilder
+class ConditionsBuilder
 {
     /** @var Method */
     private $method;
@@ -65,7 +63,7 @@ class RequestBuilder
      * @param string      $method
      * @param null|string $url
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public static function create($method, $url = null)
     {
@@ -73,9 +71,9 @@ class RequestBuilder
     }
 
     /**
-     * @param \Mcustiel\Phiremock\Domain\Condition $condition
+     * @param Condition $condition
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andBody(Condition $condition)
     {
@@ -85,9 +83,9 @@ class RequestBuilder
     }
 
     /**
-     * @param \Mcustiel\Phiremock\Domain\Condition $condition
+     * @param Condition $condition
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andBinaryBody(Condition $condition)
     {
@@ -100,10 +98,10 @@ class RequestBuilder
     }
 
     /**
-     * @param string                               $header
-     * @param \Mcustiel\Phiremock\Domain\Condition $condition
+     * @param string    $header
+     * @param Condition $condition
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andHeader($header, Condition $condition)
     {
@@ -116,9 +114,9 @@ class RequestBuilder
     }
 
     /**
-     * @param \Mcustiel\Phiremock\Domain\Condition $condition
+     * @param Condition $condition
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andUrl(Condition $condition)
     {
@@ -131,7 +129,7 @@ class RequestBuilder
      * @param string $scenario
      * @param string $scenarioState
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andScenarioState($scenario, $scenarioState)
     {
@@ -144,7 +142,7 @@ class RequestBuilder
     /**
      * @param int $priority
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
+     * @return self
      */
     public function andPriority($priority)
     {
@@ -153,38 +151,18 @@ class RequestBuilder
         return $this;
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Domain\MockConfig
-     */
+    /** @return ConditionsBuilderResult */
     public function build()
     {
-        $expectation = new MockConfig(
+        return new ConditionsBuilderResult(
             new RequestConditions(
                 $this->method,
                 $this->urlCondition,
                 $this->bodyCondition,
                 $this->headers
             ),
-            $this->getStateConditions(),
-            null,
+            $this->scenarioName,
             $this->priority
         );
-
-        return $expectation;
-    }
-
-    /**
-     * @param \Mcustiel\Phiremock\Domain\MockConfig $expectation
-     */
-    private function getStateConditions()
-    {
-        if (null !== $this->scenarioName && null !== $this->scenarioIs) {
-            return new StateConditions(
-                $this->scenarioName,
-                $this->scenarioIs
-            );
-        }
-
-        return new StateConditions();
     }
 }

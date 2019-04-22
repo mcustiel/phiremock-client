@@ -22,67 +22,51 @@ use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
 
 class A
 {
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function getRequest()
     {
-        return RequestBuilder::create(MethodsEnum::GET);
+        return ConditionsBuilder::create(MethodsEnum::GET);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function postRequest()
     {
-        return RequestBuilder::create(MethodsEnum::POST);
+        return ConditionsBuilder::create(MethodsEnum::POST);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function putRequest()
     {
-        return RequestBuilder::create(MethodsEnum::PUT);
+        return ConditionsBuilder::create(MethodsEnum::PUT);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function optionsRequest()
     {
-        return RequestBuilder::create(MethodsEnum::OPTIONS);
+        return ConditionsBuilder::create(MethodsEnum::OPTIONS);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function headRequest()
     {
-        return RequestBuilder::create(MethodsEnum::HEAD);
+        return ConditionsBuilder::create(MethodsEnum::HEAD);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function fetchRequest()
     {
-        return RequestBuilder::create(MethodsEnum::FETCH);
+        return ConditionsBuilder::create(MethodsEnum::FETCH);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function deleteRequest()
     {
-        return RequestBuilder::create(MethodsEnum::DELETE);
+        return ConditionsBuilder::create(MethodsEnum::DELETE);
     }
 
-    /**
-     * @return \Mcustiel\Phiremock\Client\Utils\RequestBuilder
-     */
+    /** @return ConditionsBuilder */
     public static function patchRequest()
     {
-        return RequestBuilder::create(MethodsEnum::PATCH);
+        return ConditionsBuilder::create(MethodsEnum::PATCH);
     }
 }

@@ -18,17 +18,21 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Options\Delay;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
+use Mcustiel\Phiremock\Domain\Response;
 
 abstract class ResponseBuilder
 {
     /** @var ScenarioState */
     private $scenarioState;
+    /** @var Delay */
+    private $delay;
 
     /**
      * @param string $scenarioState
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\ResponseBuilder
+     * @return static
      */
     public function andSetScenarioStateTo($scenarioState)
     {
@@ -37,9 +41,24 @@ abstract class ResponseBuilder
         return $this;
     }
 
-    /** @return \Mcustiel\Phiremock\Domain\Options\ScenarioState */
-    protected function getScenarioState()
+    /**
+     * @param int $delay
+     *
+     * @return static
+     */
+    public function andDelayInMillis($delay)
     {
-        return $this->scenarioState;
+        $this->delay = new Delay($delay);
+
+        return $this;
+    }
+
+    /** @return Response */
+    public function build()
+    {
+        return new Response(
+            $this->delay,
+            $this->scenarioState
+        );
     }
 }

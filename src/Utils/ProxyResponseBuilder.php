@@ -31,14 +31,15 @@ class ProxyResponseBuilder extends ResponseBuilder
         $this->uri = $uri;
     }
 
-    /**
-     * @return ProxyResponse
-     */
+    /** @return ProxyResponse */
     public function build()
     {
+        $response = parent::build();
+
         return new ProxyResponse(
             $this->uri,
-            parent::getScenarioState()
+            $response->getDelayMillis(),
+            $response->getNewScenarioState()
         );
     }
 }

@@ -26,7 +26,6 @@ use Mcustiel\Phiremock\Domain\Http\HeadersCollection;
 use Mcustiel\Phiremock\Domain\Http\HeaderValue;
 use Mcustiel\Phiremock\Domain\Http\StatusCode;
 use Mcustiel\Phiremock\Domain\HttpResponse;
-use Mcustiel\Phiremock\Domain\Options\Delay;
 
 class HttpResponseBuilder extends ResponseBuilder
 {
@@ -39,16 +38,11 @@ class HttpResponseBuilder extends ResponseBuilder
     /** @var HeadersCollection */
     private $headers;
 
-    /** @var Delay */
-    private $delay;
-
-    /**
-     * @param int $statusCode
-     */
     public function __construct(StatusCode $statusCode)
     {
         $this->headers = new HeadersCollection();
         $this->statusCode = $statusCode;
+        $this->body = Body::createEmpty();
     }
 
     /**
@@ -100,29 +94,17 @@ class HttpResponseBuilder extends ResponseBuilder
         return $this;
     }
 
-    /**
-     * @param int $delay
-     *
-     * @return self
-     */
-    public function andDelayInMillis($delay)
-    {
-        $this->response->setDelayMillis(new Delay($delay));
-
-        return $this;
-    }
-
-    /**
-     * @return HttpResponse
-     */
+    /** @return HttpResponse */
     public function build()
     {
+        $response = parent::build();
+
         return new HttpResponse(
             $this->statusCode,
             $this->body,
             $this->headers,
-            $this->delay,
-            parent::getScenarioState()
+            $response->getDelayMillis(),
+            $response->getNewScenarioState()
         );
     }
 }

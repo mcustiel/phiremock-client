@@ -2,7 +2,8 @@
 
 namespace Mcustiel\Phiremock\Client\Tests\Unit\Utils;
 
-use Mcustiel\Phiremock\Client\Utils\RequestBuilder;
+use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
+use Mcustiel\Phiremock\Client\Utils\ConditionsBuilderResult;
 use Mcustiel\Phiremock\Domain\Condition;
 use Mcustiel\Phiremock\Domain\Conditions\BodyCondition;
 use Mcustiel\Phiremock\Domain\Conditions\Matcher;
@@ -10,35 +11,38 @@ use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
-use Mcustiel\Phiremock\Domain\MockConfig;
+use Mcustiel\Phiremock\Domain\Options\Priority;
+use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\RequestConditions;
 use PHPUnit\Framework\TestCase;
 
-class RequestBuilderTest extends TestCase
+class ConditionsBuilderTest extends TestCase
 {
-    /** @var RequestBuilder */
+    /** @var ConditionsBuilder */
     private $builder;
 
     public function testCreatesARequestExpectationWithDefaultValues()
     {
-        $this->builder = new RequestBuilder(Method::delete());
-        $expectation = $this->builder->build();
+        $this->builder = new ConditionsBuilder(Method::delete());
+        $result = $this->builder->build();
 
-        $this->assertInstanceOf(MockConfig::class, $expectation);
-        $this->assertInstanceOf(RequestConditions::class, $expectation->getRequest());
-        $request = $expectation->getRequest();
+        $this->assertInstanceOf(ConditionsBuilderResult::class, $result);
+        $this->assertInstanceOf(RequestConditions::class, $result->getRequestConditions());
+        $request = $result->getRequestConditions();
         $this->assertSame(
             MethodsEnum::DELETE,
             $request->getMethod()->asString()
         );
         $this->assertNull($request->getBody());
         $this->assertNull($request->getUrl());
+        $this->assertNull($result->getPriority());
+        $this->assertNull($result->getScenarioName());
         $this->assertTrue($request->getHeaders()->isEmpty());
     }
 
     public function testCreatesARequestExpectationWithSetValues()
     {
-        $this->builder = new RequestBuilder(Method::delete());
+        $this->builder = new ConditionsBuilder(Method::delete());
         $this->builder->andUrl(
             new Condition(new Matcher(MatchersEnum::EQUAL_TO), '/potato')
         );
@@ -52,11 +56,11 @@ class RequestBuilderTest extends TestCase
         $this->builder->andPriority(8);
         $this->builder->andScenarioState('potatoScenarioName', 'tomatoScenarioState');
 
-        $expectation = $this->builder->build();
+        $result = $this->builder->build();
 
-        $this->assertInstanceOf(MockConfig::class, $expectation);
-        $this->assertInstanceOf(RequestConditions::class, $expectation->getRequest());
-        $request = $expectation->getRequest();
+        $this->assertInstanceOf(ConditionsBuilderResult::class, $result);
+        $this->assertInstanceOf(RequestConditions::class, $result->getRequestConditions());
+        $request = $result->getRequestConditions();
         $this->assertSame(
             MethodsEnum::DELETE,
             $request->getMethod()->asString()
@@ -67,5 +71,9 @@ class RequestBuilderTest extends TestCase
         $this->assertInstanceof(UrlCondition::class, $request->getUrl());
         $this->assertSame(MatchersEnum::EQUAL_TO, $request->getUrl()->getMatcher()->asString());
         $this->assertSame('/potato', $request->getUrl()->getValue()->asString());
+        $this->assertInstanceOf(Priority::class, $result->getPriority());
+        $this->assertSame(8, $result->getPriority()->asInt());
+        $this->assertInstanceOf(ScenarioName::class, $result->getScenarioName());
+        $this->assertSame('potatoScenarioName', $result->getScenarioName()->asString());
     }
 }

@@ -20,12 +20,12 @@ namespace Mcustiel\Phiremock\Client;
 
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
+use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
-use Mcustiel\Phiremock\Client\Utils\RequestBuilder;
 use Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface;
 use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
-use Mcustiel\Phiremock\Domain\Expectation;
+use Mcustiel\Phiremock\Domain\MockConfig;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
@@ -55,20 +55,20 @@ class Phiremock
         Host $host,
         Port $port,
         RemoteConnectionInterface $remoteConnection,
-        ArrayToExpectationConverter $arrayToExpectationConverter
+        ArrayToExpectationConverter $arrayToMockConfigConverter
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
-        $this->converter = $arrayToExpectationConverter;
+        $this->converter = $arrayToMockConfigConverter;
     }
 
     /**
      * Creates an expectation with a response for a given request.
      *
-     * @param \Mcustiel\Phiremock\Domain\Expectation $expectation
+     * @param \Mcustiel\Phiremock\Domain\MockConfig $expectation
      */
-    public function createExpectation(Expectation $expectation)
+    public function createMockConfig(MockConfig $expectation)
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         // TODO: Add converter from expectation to array
@@ -81,7 +81,7 @@ class Phiremock
             ->withMethod('post')
             ->withHeader('Content-Type', 'application/json')
             ->withBody(new StringStream($body));
-        $this->checkResponse($this->connection->send($request));
+        $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
     /**
@@ -92,26 +92,26 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('post');
 
-        $this->checkResponse($this->connection->send($request));
+        $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
     /**
      * Clears all the currently configured expectations.
      */
-    public function clearExpectations()
+    public function clearMockConfigs()
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->checkResponse($this->connection->send($request));
+        $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
     /**
      * Lists all currently configured expectations.
      *
-     * @return \Mcustiel\Phiremock\Domain\Expectation[]
+     * @return \Mcustiel\Phiremock\Domain\MockConfig[]
      */
-    public function listExpectations()
+    public function listMockConfigs()
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
@@ -123,17 +123,17 @@ class Phiremock
             );
         }
 
-        $this->checkErrorResponse($response);
+        $this->ensureIsNotErrorResponse($response);
     }
 
     /**
      * Counts the amount of times a request was executed in phiremock.
      *
-     * @param \Mcustiel\Phiremock\Client\Utils\RequestBuilder $requestBuilder
+     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
      *
      * @return int
      */
-    public function countExecutions(RequestBuilder $requestBuilder)
+    public function countExecutions(ConditionsBuilder $requestBuilder)
     {
         $expectation = $requestBuilder->build();
         $expectation->setResponse(new Response());
@@ -153,20 +153,20 @@ class Phiremock
             return $json->count;
         }
 
-        $this->checkErrorResponse($response);
+        $this->ensureIsNotErrorResponse($response);
     }
 
     /**
      * List requests was executed in phiremock.
      *
-     * @param \Mcustiel\Phiremock\Client\Utils\RequestBuilder $requestBuilder
+     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
      *
      * @return array
      */
-    public function listExecutions(RequestBuilder $requestBuilder)
+    public function listExecutions(ConditionsBuilder $requestBuilder)
     {
         $expectation = $requestBuilder->build();
-        $expectation->setResponse(new Response());
+        $expectation->setResponse(Response::createEmpty());
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
         $request = (new PsrRequest())
@@ -181,7 +181,7 @@ class Phiremock
             return json_decode($response->getBody()->__toString());
         }
 
-        $this->checkErrorResponse($response);
+        $this->ensureIsNotErrorResponse($response);
     }
 
     /**
@@ -200,7 +200,7 @@ class Phiremock
 
         $response = $this->connection->send($request);
         if (200 !== $response->getStatusCode()) {
-            $this->checkErrorResponse($response);
+            $this->ensureIsNotErrorResponse($response);
         }
     }
 
@@ -212,7 +212,7 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->checkResponse($this->connection->send($request));
+        $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
     /**
@@ -223,17 +223,17 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->checkResponse($this->connection->send($request));
+        $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
     /**
      * Inits the fluent interface to create an expectation.
      *
-     * @param \Mcustiel\Phiremock\Client\Utils\RequestBuilder $requestBuilder
+     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
      *
      * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
      */
-    public static function on(RequestBuilder $requestBuilder)
+    public static function on(ConditionsBuilder $requestBuilder)
     {
         return new ExpectationBuilder($requestBuilder);
     }
@@ -249,7 +249,7 @@ class Phiremock
     public static function onRequest($method, $url)
     {
         return new ExpectationBuilder(
-            RequestBuilder::create($method, $url)
+            ConditionsBuilder::create($method, $url)
         );
     }
 
@@ -266,22 +266,10 @@ class Phiremock
 
     /**
      * @param \Psr\Http\Message\ResponseInterface $response
-     */
-    private function checkResponse(ResponseInterface $response)
-    {
-        if (201 === $response->getStatusCode()) {
-            return;
-        }
-
-        $this->checkErrorResponse($response);
-    }
-
-    /**
-     * @param \Psr\Http\Message\ResponseInterface $response
      *
      * @throws \RuntimeException
      */
-    private function checkErrorResponse(ResponseInterface $response)
+    private function ensureIsNotErrorResponse(ResponseInterface $response)
     {
         if ($response->getStatusCode() >= 500) {
             $errors = json_decode($response->getBody()->__toString(), true)['details'];

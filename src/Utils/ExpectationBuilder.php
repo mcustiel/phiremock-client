@@ -18,21 +18,18 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Http\Body;
 use Mcustiel\Phiremock\Domain\MockConfig;
+use Mcustiel\Phiremock\Domain\Response;
 
 class ExpectationBuilder
 {
-    /**
-     * @var \Mcustiel\Phiremock\Domain\MockConfig
-     */
-    private $expectation;
+    /** @var ConditionsBuilder */
+    private $requestBuilder;
 
-    /**
-     * @param RequestBuilder $requestBuilder
-     */
-    public function __construct(RequestBuilder $requestBuilder)
+    public function __construct(ConditionsBuilder $requestBuilder)
     {
-        $this->expectation = $requestBuilder->build();
+        $this->requestBuilder = $requestBuilder;
     }
 
     /**
@@ -42,12 +39,7 @@ class ExpectationBuilder
      */
     public function then(ResponseBuilder $responseBuilder)
     {
-        return new MockConfig(
-            $this->expectation->getRequest(),
-            $this->expectation->getStateConditions(),
-            $responseBuilder->build(),
-            $this->expectation->getPriority()
-        );
+        return $this->createMockConfig($responseBuilder->build());
     }
 
     /**
@@ -60,11 +52,23 @@ class ExpectationBuilder
      */
     public function thenRespond($statusCode, $body)
     {
-        $response = ResponseBuilder::create($statusCode)
-            ->andBody($body)
-            ->build()
-            ->getResponse();
+        $response = HttpResponseBuilder::create($statusCode)
+            ->andBody(new Body($body))
+            ->build();
 
-        return $this->expectation->setResponse($response);
+        return $this->createMockConfig($response);
+    }
+
+    /** @return \Mcustiel\Phiremock\Domain\MockConfig */
+    private function createMockConfig(Response $response)
+    {
+        $requestOptions = $this->requestBuilder->build();
+
+        return new MockConfig(
+            $requestOptions->getRequestConditions(),
+            $response,
+            $requestOptions->getScenarioName(),
+            $requestOptions->getPriority()
+        );
     }
 }

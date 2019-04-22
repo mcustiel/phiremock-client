@@ -21,10 +21,9 @@ namespace Mcustiel\Phiremock\Client\Utils;
 class Proxy
 {
     /**
-     * @param int   $status
-     * @param mixed $url
+     * @param string $url
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\ResponseBuilder
+     * @return ProxyResponseBuilder
      */
     public static function to($url)
     {
