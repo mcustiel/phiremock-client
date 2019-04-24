@@ -30,14 +30,6 @@ class Factory
         'http_errors' => false,
     ];
 
-    /** @var PhiremockFactory */
-    private $phiremockFactory;
-
-    private function __construct(PhiremockFactory $factory)
-    {
-        $this->phiremockFactory = $factory;
-    }
-
     /** @return \Mcustiel\Phiremock\Client\Phiremock */
     public function createPhiremockClient(Host $host, Port $port)
     {
