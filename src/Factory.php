@@ -30,6 +30,20 @@ class Factory
         'http_errors' => false,
     ];
 
+    /** @var PhiremockFactory */
+    private $phiremockFactory;
+
+    private function __construct(PhiremockFactory $factory)
+    {
+        $this->phiremockFactory = $factory;
+    }
+
+    /** @return self */
+    public static function createDefault()
+    {
+        return new self(new PhiremockFactory());
+    }
+
     /** @return \Mcustiel\Phiremock\Client\Phiremock */
     public function createPhiremockClient(Host $host, Port $port)
     {
@@ -37,7 +51,7 @@ class Factory
             $host,
             $port,
             $this->createRemoteConnection(),
-            $this->createArrayToExpectationConverter()
+            $this->phiremockFactory->createArrayToExpectationConverter()
         );
     }
 
