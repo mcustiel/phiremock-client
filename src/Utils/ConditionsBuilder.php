@@ -28,7 +28,6 @@ use Mcustiel\Phiremock\Domain\Http\BinaryBody;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\Url;
-use Mcustiel\Phiremock\Domain\Options\Priority;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\RequestConditions;
@@ -47,8 +46,6 @@ class ConditionsBuilder
     private $scenarioName;
     /** @var ScenarioState */
     private $scenarioIs;
-    /** @var Priority */
-    private $priority;
 
     public function __construct(Method $method, Url $url = null)
     {
@@ -61,7 +58,7 @@ class ConditionsBuilder
 
     /**
      * @param string      $method
-     * @param null|string $url
+     * @param string|null $url
      *
      * @return self
      */
@@ -139,18 +136,6 @@ class ConditionsBuilder
         return $this;
     }
 
-    /**
-     * @param int $priority
-     *
-     * @return self
-     */
-    public function andPriority($priority)
-    {
-        $this->priority = new Priority($priority);
-
-        return $this;
-    }
-
     /** @return ConditionsBuilderResult */
     public function build()
     {
@@ -161,8 +146,7 @@ class ConditionsBuilder
                 $this->bodyCondition,
                 $this->headers
             ),
-            $this->scenarioName,
-            $this->priority
+            $this->scenarioName
         );
     }
 }

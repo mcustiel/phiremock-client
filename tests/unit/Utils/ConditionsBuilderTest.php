@@ -11,7 +11,6 @@ use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
-use Mcustiel\Phiremock\Domain\Options\Priority;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\RequestConditions;
 use PHPUnit\Framework\TestCase;
@@ -35,7 +34,6 @@ class ConditionsBuilderTest extends TestCase
         );
         $this->assertNull($request->getBody());
         $this->assertNull($request->getUrl());
-        $this->assertNull($result->getPriority());
         $this->assertNull($result->getScenarioName());
         $this->assertTrue($request->getHeaders()->isEmpty());
     }
@@ -53,7 +51,6 @@ class ConditionsBuilderTest extends TestCase
             'Content-Type',
             new Condition(new Matcher(MatchersEnum::SAME_STRING), 'text/plain')
         );
-        $this->builder->andPriority(8);
         $this->builder->andScenarioState('potatoScenarioName', 'tomatoScenarioState');
 
         $result = $this->builder->build();
@@ -71,8 +68,6 @@ class ConditionsBuilderTest extends TestCase
         $this->assertInstanceof(UrlCondition::class, $request->getUrl());
         $this->assertSame(MatchersEnum::EQUAL_TO, $request->getUrl()->getMatcher()->asString());
         $this->assertSame('/potato', $request->getUrl()->getValue()->asString());
-        $this->assertInstanceOf(Priority::class, $result->getPriority());
-        $this->assertSame(8, $result->getPriority()->asInt());
         $this->assertInstanceOf(ScenarioName::class, $result->getScenarioName());
         $this->assertSame('potatoScenarioName', $result->getScenarioName()->asString());
     }
