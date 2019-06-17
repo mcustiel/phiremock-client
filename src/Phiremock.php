@@ -25,13 +25,13 @@ use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
 use Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface;
 use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
+use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
 use Mcustiel\Phiremock\Domain\MockConfig;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Request as PsrRequest;
 use Zend\Diactoros\Uri;
-use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
 
 class Phiremock
 {

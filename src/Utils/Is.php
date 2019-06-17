@@ -19,8 +19,6 @@
 namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Condition;
-use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
-use Mcustiel\Phiremock\Server\Config\Matchers;
 use Mcustiel\Phiremock\Domain\Conditions\Matcher;
 
 class Is
