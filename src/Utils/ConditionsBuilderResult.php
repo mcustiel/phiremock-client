@@ -18,7 +18,6 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Options\Priority;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\RequestConditions;
 
@@ -28,29 +27,19 @@ class ConditionsBuilderResult
     private $request;
     /** @var ScenarioName */
     private $scenarioName;
-    /** @var Priority */
-    private $priority;
 
     public function __construct(
         RequestConditions $request,
-        ScenarioName $scenarioName = null,
-        Priority $priority = null
+        ScenarioName $scenarioName = null
     ) {
         $this->request = $request;
         $this->scenarioName = $scenarioName;
-        $this->priority = $priority;
     }
 
     /** @return RequestConditions */
     public function getRequestConditions()
     {
         return $this->request;
-    }
-
-    /** @return Priority|null */
-    public function getPriority()
-    {
-        return $this->priority;
     }
 
     /** @return ScenarioName|null */

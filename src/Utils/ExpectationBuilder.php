@@ -67,8 +67,7 @@ class ExpectationBuilder
         return new MockConfig(
             $requestOptions->getRequestConditions(),
             $response,
-            $requestOptions->getScenarioName(),
-            $requestOptions->getPriority()
+            $requestOptions->getScenarioName()
         );
     }
 }
