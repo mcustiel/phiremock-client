@@ -23,7 +23,7 @@ class Respond
     /**
      * @param int $status
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\ResponseBuilder
+     * @return \Mcustiel\Phiremock\Client\Utils\HttpResponseBuilder
      */
     public static function withStatusCode($status)
     {

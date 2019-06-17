@@ -144,7 +144,7 @@ class ConditionsBuilder
      *
      * @return self
      */
-    public function andPriority($priority)
+    public function withPriority($priority)
     {
         $this->priority = new Priority($priority);
 

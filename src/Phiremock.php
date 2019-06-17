@@ -31,6 +31,7 @@ use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
 use Zend\Diactoros\Request as PsrRequest;
 use Zend\Diactoros\Uri;
+use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
 
 class Phiremock
 {
@@ -43,7 +44,10 @@ class Phiremock
     private $connection;
 
     /** @var ArrayToExpectationConverter */
-    private $converter;
+    private $arrayToExpectationConverter;
+
+    /** @var ArrayToExpectationConverter */
+    private $expectationToArrayConverter;
 
     /** @var Host */
     private $host;
@@ -55,12 +59,14 @@ class Phiremock
         Host $host,
         Port $port,
         RemoteConnectionInterface $remoteConnection,
+        ExpectationToArrayConverter $mockConfigToArrayConverter,
         ArrayToExpectationConverter $arrayToMockConfigConverter
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
-        $this->converter = $arrayToMockConfigConverter;
+        $this->expectationToArrayConverter = $mockConfigToArrayConverter;
+        $this->arrayToExpectationConverter = $arrayToMockConfigConverter;
     }
 
     /**
@@ -71,8 +77,7 @@ class Phiremock
     public function createMockConfig(MockConfig $expectation)
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
-        // TODO: Add converter from expectation to array
-        $body = @json_encode($expectation);
+        $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
         if (false === $body) {
             throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
         }
@@ -118,7 +123,7 @@ class Phiremock
         $response = $this->connection->send($request);
 
         if (200 === $response->getStatusCode()) {
-            return $this->converter->convert(
+            return $this->arrayToExpectationConverter->convert(
                 json_decode($response->getBody()->__toString(), true)
             );
         }
