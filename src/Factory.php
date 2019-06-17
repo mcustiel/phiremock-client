@@ -38,6 +38,12 @@ class Factory
         $this->phiremockFactory = $factory;
     }
 
+    /** @return self */
+    public static function createDefault()
+    {
+        return new self(new PhiremockFactory());
+    }
+
     /** @return \Mcustiel\Phiremock\Client\Phiremock */
     public function createPhiremockClient(Host $host, Port $port)
     {
@@ -45,7 +51,7 @@ class Factory
             $host,
             $port,
             $this->createRemoteConnection(),
-            $this->createArrayToExpectationConverter()
+            $this->phiremockFactory->createArrayToExpectationConverter()
         );
     }
 
