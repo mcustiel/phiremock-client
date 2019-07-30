@@ -18,13 +18,18 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Condition;
-use Mcustiel\Phiremock\Domain\Conditions\BodyCondition;
-use Mcustiel\Phiremock\Domain\Conditions\HeaderCondition;
-use Mcustiel\Phiremock\Domain\Conditions\HeaderConditionCollection;
-use Mcustiel\Phiremock\Domain\Conditions\Matcher;
-use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
-use Mcustiel\Phiremock\Domain\Http\BinaryBody;
+use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyCondition;
+use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyMatcher;
+use Mcustiel\Phiremock\Domain\Conditions\Body\BodyCondition;
+use Mcustiel\Phiremock\Domain\Conditions\Body\BodyMatcher;
+use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderCondition;
+use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderConditionCollection;
+use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderMatcher;
+use Mcustiel\Phiremock\Domain\Conditions\Method\MethodCondition;
+use Mcustiel\Phiremock\Domain\Conditions\Method\MethodMatcher;
+use Mcustiel\Phiremock\Domain\Conditions\StringValue;
+use Mcustiel\Phiremock\Domain\Conditions\Url\UrlCondition;
+use Mcustiel\Phiremock\Domain\Conditions\Url\UrlMatcher;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Http\Method;
 use Mcustiel\Phiremock\Domain\Http\Url;
@@ -34,8 +39,8 @@ use Mcustiel\Phiremock\Domain\RequestConditions;
 
 class ConditionsBuilder
 {
-    /** @var Method */
-    private $method;
+    /** @var MethodCondition */
+    private $methodCondition;
     /** @var UrlCondition */
     private $urlCondition;
     /** @var BodyCondition */
@@ -47,13 +52,11 @@ class ConditionsBuilder
     /** @var ScenarioState */
     private $scenarioIs;
 
-    public function __construct(Method $method, Url $url = null)
+    public function __construct(MethodCondition $methodCondition, UrlCondition $urlCondition = null)
     {
         $this->headers = new HeaderConditionCollection();
-        $this->method = $method;
-        if (null !== $url) {
-            $this->urlCondition = new UrlCondition(Matcher::equalTo(), $url->asString());
-        }
+        $this->methodCondition = $methodCondition;
+        $this->urlCondition = $urlCondition;
     }
 
     /**
@@ -64,7 +67,12 @@ class ConditionsBuilder
      */
     public static function create($method, $url = null)
     {
-        return new static(new Method($method), null === $url ? null : new Url($url));
+        return new static(
+            new MethodCondition(MethodMatcher::equalTo(), new StringValue($method)),
+            null === $url
+                ? null :
+                new UrlCondition(UrlMatcher::equalTo(), new StringValue($url))
+        );
     }
 
     /**
@@ -74,7 +82,10 @@ class ConditionsBuilder
      */
     public function andBody(Condition $condition)
     {
-        $this->bodyCondition = BodyCondition::fromCondition($condition);
+        $this->bodyCondition = new BodyCondition(
+            new BodyMatcher($condition->getMatcherName()),
+            new StringValue($condition->getValue())
+        );
 
         return $this;
     }
@@ -86,9 +97,9 @@ class ConditionsBuilder
      */
     public function andBinaryBody(Condition $condition)
     {
-        $this->bodyCondition = new BodyCondition(
-            $condition->getMatcher(),
-            new BinaryBody($condition->getValue())
+        $this->bodyCondition = new BinaryBodyCondition(
+            new BinaryBodyMatcher($condition->getMatcherName()),
+            new StringValue($condition->getValue())
         );
 
         return $this;
@@ -104,7 +115,10 @@ class ConditionsBuilder
     {
         $this->headers->setHeaderCondition(
             new HeaderName($header),
-            HeaderCondition::fromCondition($condition)
+            new HeaderCondition(
+                new HeaderMatcher($condition->getMatcherName()),
+                new StringValue($condition->getValue())
+            )
         );
 
         return $this;
@@ -117,7 +131,10 @@ class ConditionsBuilder
      */
     public function andUrl(Condition $condition)
     {
-        $this->urlCondition = UrlCondition::fromCondition($condition);
+        $this->urlCondition = new UrlCondition(
+            new UrlMatcher($condition->getMatcherName()),
+            new StringValue($condition->getValue())
+        );
 
         return $this;
     }
@@ -141,7 +158,7 @@ class ConditionsBuilder
     {
         return new ConditionsBuilderResult(
             new RequestConditions(
-                $this->method,
+                $this->methodCondition,
                 $this->urlCondition,
                 $this->bodyCondition,
                 $this->headers

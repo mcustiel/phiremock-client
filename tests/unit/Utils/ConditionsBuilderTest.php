@@ -2,14 +2,15 @@
 
 namespace Mcustiel\Phiremock\Client\Tests\Unit\Utils;
 
+use Mcustiel\Phiremock\Client\Utils\Condition;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilderResult;
-use Mcustiel\Phiremock\Domain\Condition;
-use Mcustiel\Phiremock\Domain\Conditions\BodyCondition;
-use Mcustiel\Phiremock\Domain\Conditions\Matcher;
+use Mcustiel\Phiremock\Domain\Conditions\Body\BodyCondition;
 use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
-use Mcustiel\Phiremock\Domain\Conditions\UrlCondition;
-use Mcustiel\Phiremock\Domain\Http\Method;
+use Mcustiel\Phiremock\Domain\Conditions\Method\MethodCondition;
+use Mcustiel\Phiremock\Domain\Conditions\Method\MethodMatcher;
+use Mcustiel\Phiremock\Domain\Conditions\StringValue;
+use Mcustiel\Phiremock\Domain\Conditions\Url\UrlCondition;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\RequestConditions;
@@ -22,7 +23,12 @@ class ConditionsBuilderTest extends TestCase
 
     public function testCreatesARequestExpectationWithDefaultValues()
     {
-        $this->builder = new ConditionsBuilder(Method::delete());
+        $this->builder = new ConditionsBuilder(
+            new MethodCondition(
+                MethodMatcher::equalTo(),
+                new StringValue('DELETE')
+            )
+        );
         $result = $this->builder->build();
 
         $this->assertInstanceOf(ConditionsBuilderResult::class, $result);
@@ -30,7 +36,7 @@ class ConditionsBuilderTest extends TestCase
         $request = $result->getRequestConditions();
         $this->assertSame(
             MethodsEnum::DELETE,
-            $request->getMethod()->asString()
+            $request->getMethod()->getValue()->asString()
         );
         $this->assertNull($request->getBody());
         $this->assertNull($request->getUrl());
@@ -40,16 +46,21 @@ class ConditionsBuilderTest extends TestCase
 
     public function testCreatesARequestExpectationWithSetValues()
     {
-        $this->builder = new ConditionsBuilder(Method::delete());
+        $this->builder = new ConditionsBuilder(
+            new MethodCondition(
+                MethodMatcher::equalTo(),
+                new StringValue('DELETE')
+            )
+        );
         $this->builder->andUrl(
-            new Condition(new Matcher(MatchersEnum::EQUAL_TO), '/potato')
+            new Condition(MatchersEnum::EQUAL_TO, '/potato')
         );
         $this->builder->andBody(
-            new Condition(new Matcher(MatchersEnum::CONTAINS), 'tomato')
+            new Condition(MatchersEnum::CONTAINS, 'tomato')
         );
         $this->builder->andHeader(
             'Content-Type',
-            new Condition(new Matcher(MatchersEnum::SAME_STRING), 'text/plain')
+            new Condition(MatchersEnum::SAME_STRING, 'text/plain')
         );
         $this->builder->andScenarioState('potatoScenarioName', 'tomatoScenarioState');
 
@@ -60,7 +71,7 @@ class ConditionsBuilderTest extends TestCase
         $request = $result->getRequestConditions();
         $this->assertSame(
             MethodsEnum::DELETE,
-            $request->getMethod()->asString()
+            $request->getMethod()->getValue()->asString()
         );
         $this->assertInstanceof(BodyCondition::class, $request->getBody());
         $this->assertSame(MatchersEnum::CONTAINS, $request->getBody()->getMatcher()->asString());
