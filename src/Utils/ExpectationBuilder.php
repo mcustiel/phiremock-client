@@ -18,8 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\Body;
-use Mcustiel\Phiremock\Domain\MockConfig;
 use Mcustiel\Phiremock\Domain\Response;
 
 class ExpectationBuilder
@@ -35,11 +35,11 @@ class ExpectationBuilder
     /**
      * @param \Mcustiel\Phiremock\Domain\Response $responseBuilder
      *
-     * @return \Mcustiel\Phiremock\Domain\MockConfig
+     * @return \Mcustiel\Phiremock\Domain\Expectation
      */
     public function then(ResponseBuilder $responseBuilder)
     {
-        return $this->createMockConfig($responseBuilder->build());
+        return $this->createExpectation($responseBuilder->build());
     }
 
     /**
@@ -56,15 +56,15 @@ class ExpectationBuilder
             ->andBody(new Body($body))
             ->build();
 
-        return $this->createMockConfig($response);
+        return $this->createExpectation($response);
     }
 
-    /** @return \Mcustiel\Phiremock\Domain\MockConfig */
-    private function createMockConfig(Response $response)
+    /** @return \Mcustiel\Phiremock\Domain\Expectation */
+    private function createExpectation(Response $response)
     {
         $requestOptions = $this->requestBuilder->build();
 
-        return new MockConfig(
+        return new Expectation(
             $requestOptions->getRequestConditions(),
             $response,
             $requestOptions->getScenarioName()

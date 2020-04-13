@@ -18,6 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client;
 
+use Laminas\Diactoros\Request as PsrRequest;
+use Laminas\Diactoros\Uri;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
@@ -26,12 +28,10 @@ use Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface;
 use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
-use Mcustiel\Phiremock\Domain\MockConfig;
+use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
-use Zend\Diactoros\Request as PsrRequest;
-use Zend\Diactoros\Uri;
 
 class Phiremock
 {
@@ -59,22 +59,20 @@ class Phiremock
         Host $host,
         Port $port,
         RemoteConnectionInterface $remoteConnection,
-        ExpectationToArrayConverter $mockConfigToArrayConverter,
-        ArrayToExpectationConverter $arrayToMockConfigConverter
+        ExpectationToArrayConverter $ExpectationToArrayConverter,
+        ArrayToExpectationConverter $arrayToExpectationConverter
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
-        $this->expectationToArrayConverter = $mockConfigToArrayConverter;
-        $this->arrayToExpectationConverter = $arrayToMockConfigConverter;
+        $this->expectationToArrayConverter = $ExpectationToArrayConverter;
+        $this->arrayToExpectationConverter = $arrayToExpectationConverter;
     }
 
     /**
      * Creates an expectation with a response for a given request.
-     *
-     * @param \Mcustiel\Phiremock\Domain\MockConfig $expectation
      */
-    public function createMockConfig(MockConfig $expectation)
+    public function createExpectation(Expectation $expectation)
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
@@ -103,7 +101,7 @@ class Phiremock
     /**
      * Clears all the currently configured expectations.
      */
-    public function clearMockConfigs()
+    public function clearExpectations()
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
@@ -114,9 +112,9 @@ class Phiremock
     /**
      * Lists all currently configured expectations.
      *
-     * @return \Mcustiel\Phiremock\Domain\MockConfig[]
+     * @return \Mcustiel\Phiremock\Domain\Expectation[]
      */
-    public function listMockConfigs()
+    public function listExpectations()
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
@@ -133,8 +131,6 @@ class Phiremock
 
     /**
      * Counts the amount of times a request was executed in phiremock.
-     *
-     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
      *
      * @return int
      */
@@ -164,8 +160,6 @@ class Phiremock
     /**
      * List requests was executed in phiremock.
      *
-     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
-     *
      * @return array
      */
     public function listExecutions(ConditionsBuilder $requestBuilder)
@@ -191,8 +185,6 @@ class Phiremock
 
     /**
      * Sets scenario state.
-     *
-     * @param \Mcustiel\Phiremock\Domain\ScenarioStateInfo $scenarioState
      */
     public function setScenarioState(ScenarioStateInfo $scenarioState)
     {
@@ -234,8 +226,6 @@ class Phiremock
     /**
      * Inits the fluent interface to create an expectation.
      *
-     * @param \Mcustiel\Phiremock\Client\Utils\ConditionsBuilder $requestBuilder
-     *
      * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
      */
     public static function on(ConditionsBuilder $requestBuilder)
@@ -259,7 +249,7 @@ class Phiremock
     }
 
     /**
-     * @return \Zend\Diactoros\Uri
+     * @return \Laminas\Diactoros\Uri
      */
     private function createBaseUri()
     {
@@ -270,8 +260,6 @@ class Phiremock
     }
 
     /**
-     * @param \Psr\Http\Message\ResponseInterface $response
-     *
      * @throws \RuntimeException
      */
     private function ensureIsNotErrorResponse(ResponseInterface $response)
@@ -279,10 +267,7 @@ class Phiremock
         if ($response->getStatusCode() >= 500) {
             $errors = json_decode($response->getBody()->__toString(), true)['details'];
 
-            throw new \RuntimeException(
-                'An error occurred creating the expectation: '
-                . ($errors ? var_export($errors, true) : '')
-                . $response->getBody()->__toString());
+            throw new \RuntimeException('An error occurred creating the expectation: ' . ($errors ? var_export($errors, true) : '') . $response->getBody()->__toString());
         }
 
         if ($response->getStatusCode() >= 400) {

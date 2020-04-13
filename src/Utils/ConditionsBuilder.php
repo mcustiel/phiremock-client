@@ -18,6 +18,7 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyCondition;
 use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyMatcher;
 use Mcustiel\Phiremock\Domain\Conditions\Body\BodyCondition;
@@ -31,11 +32,8 @@ use Mcustiel\Phiremock\Domain\Conditions\StringValue;
 use Mcustiel\Phiremock\Domain\Conditions\Url\UrlCondition;
 use Mcustiel\Phiremock\Domain\Conditions\Url\UrlMatcher;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
-use Mcustiel\Phiremock\Domain\Http\Method;
-use Mcustiel\Phiremock\Domain\Http\Url;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
-use Mcustiel\Phiremock\Domain\RequestConditions;
 
 class ConditionsBuilder
 {
@@ -76,8 +74,6 @@ class ConditionsBuilder
     }
 
     /**
-     * @param Condition $condition
-     *
      * @return self
      */
     public function andBody(Condition $condition)
@@ -91,8 +87,6 @@ class ConditionsBuilder
     }
 
     /**
-     * @param Condition $condition
-     *
      * @return self
      */
     public function andBinaryBody(Condition $condition)
@@ -106,8 +100,7 @@ class ConditionsBuilder
     }
 
     /**
-     * @param string    $header
-     * @param Condition $condition
+     * @param string $header
      *
      * @return self
      */
@@ -125,8 +118,6 @@ class ConditionsBuilder
     }
 
     /**
-     * @param Condition $condition
-     *
      * @return self
      */
     public function andUrl(Condition $condition)

@@ -18,8 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
-use Mcustiel\Phiremock\Domain\RequestConditions;
 
 class ConditionsBuilderResult
 {
