@@ -5,7 +5,6 @@ return PhpCsFixer\Config::create()
     ->setRules(
     [
     	// PSR-12
-	    
 	    '@PSR2' => true,
 	    'blank_line_after_opening_tag' => true,
 	    'braces' => ['allow_single_line_closure' => true],

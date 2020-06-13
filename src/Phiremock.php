@@ -72,13 +72,19 @@ class Phiremock
     /**
      * Creates an expectation with a response for a given request.
      */
-    public function createExpectation(Expectation $expectation)
+    public function createExpectation(Expectation $expectation): void
     {
-        $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
-        if ($body === false) {
+        if (json_last_error() !== JSON_ERROR_NONE) {
             throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
         }
+        $this->createExpectationFromJson($body);
+    }
+
+    /** Creates an expectation from a json configuration */
+    public function createExpectationFromJson(string $body): void
+    {
+        $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())
             ->withUri($uri)
             ->withMethod('post')
