@@ -142,8 +142,12 @@ class Phiremock
      */
     public function countExecutions(ConditionsBuilder $requestBuilder)
     {
-        $expectation = $requestBuilder->build();
-        $expectation->setResponse(new Response());
+        $requestBuilderResult = $requestBuilder->build();
+        $expectation = new Expectation(
+            $requestBuilderResult->getRequestConditions(),
+            Response::createEmpty(),
+            $requestBuilderResult->getScenarioName()
+        );
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
         $request = (new PsrRequest())
@@ -170,8 +174,12 @@ class Phiremock
      */
     public function listExecutions(ConditionsBuilder $requestBuilder)
     {
-        $expectation = $requestBuilder->build();
-        $expectation->setResponse(Response::createEmpty());
+        $requestBuilderResult = $requestBuilder->build();
+        $expectation = new Expectation(
+            $requestBuilderResult->getRequestConditions(),
+            Response::createEmpty(),
+            $requestBuilderResult->getScenarioName()
+        );
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
         $request = (new PsrRequest())
