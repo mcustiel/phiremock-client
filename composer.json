@@ -18,7 +18,10 @@
     "autoload" : {
         "psr-4" : {
             "Mcustiel\\Phiremock\\Client\\" : "src"
-        }
+        },
+        "files": [
+        	"src/helper_functions.php"
+        ]
     },
     "name" : "mcustiel/phiremock-client",
     "type" : "project",

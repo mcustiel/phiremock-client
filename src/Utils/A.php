@@ -22,51 +22,48 @@ use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
 
 class A
 {
-    /** @return ConditionsBuilder */
-    public static function getRequest()
+    public static function getRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::GET);
     }
 
-    /** @return ConditionsBuilder */
-    public static function postRequest()
+    public static function postRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::POST);
     }
 
-    /** @return ConditionsBuilder */
-    public static function putRequest()
+    public static function putRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::PUT);
     }
 
-    /** @return ConditionsBuilder */
-    public static function optionsRequest()
+    public static function optionsRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::OPTIONS);
     }
 
-    /** @return ConditionsBuilder */
-    public static function headRequest()
+    public static function headRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::HEAD);
     }
 
-    /** @return ConditionsBuilder */
-    public static function fetchRequest()
+    public static function fetchRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::FETCH);
     }
 
-    /** @return ConditionsBuilder */
-    public static function deleteRequest()
+    public static function deleteRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::DELETE);
     }
 
-    /** @return ConditionsBuilder */
-    public static function patchRequest()
+    public static function patchRequest(): ConditionsBuilder
     {
         return ConditionsBuilder::create(MethodsEnum::PATCH);
+    }
+
+    public static function linkRequest(): ConditionsBuilder
+    {
+        return ConditionsBuilder::create(MethodsEnum::LINK);
     }
 }
