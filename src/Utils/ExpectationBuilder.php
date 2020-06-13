@@ -20,8 +20,8 @@ namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\Body;
-use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\HttpResponse;
+use Mcustiel\Phiremock\Domain\Response;
 
 class ExpectationBuilder
 {

@@ -2,19 +2,18 @@
 
 namespace Mcustiel\Phiremock\Client;
 
-use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\A;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
-use Mcustiel\Phiremock\Client\Utils\Is;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\CaseInsensitiveEquals;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\RegExp;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Contains;
+use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\HttpResponseBuilder;
-use Mcustiel\Phiremock\Client\Utils\Respond;
-use Mcustiel\Phiremock\Client\Utils\ProxyResponseBuilder;
+use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Proxy;
+use Mcustiel\Phiremock\Client\Utils\ProxyResponseBuilder;
+use Mcustiel\Phiremock\Client\Utils\Respond;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\CaseInsensitiveEquals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Contains;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\RegExp;
 
 // ConditionBuilder creators
 

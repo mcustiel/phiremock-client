@@ -18,19 +18,19 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BinaryBodyCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BodyCondition;
-use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderConditionCollection;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\MethodCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
+use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
 
 class ConditionsBuilder
 {
@@ -63,8 +63,8 @@ class ConditionsBuilder
     public static function create(string $method = null, string $url = null): self
     {
         return new static(
-            null === $url ? null : new MethodCondition(MatcherFactory::equalsTo($method)),
-            null === $url ? null : new UrlCondition(MatcherFactory::equalTo($url))
+            $url === null ? null : new MethodCondition(MatcherFactory::equalsTo($method)),
+            $url === null ? null : new UrlCondition(MatcherFactory::equalTo($url))
         );
     }
 

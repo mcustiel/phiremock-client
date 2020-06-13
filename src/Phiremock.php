@@ -76,7 +76,7 @@ class Phiremock
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
-        if (false === $body) {
+        if ($body === false) {
             throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
         }
         $request = (new PsrRequest())
@@ -120,7 +120,7 @@ class Phiremock
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
         $response = $this->connection->send($request);
 
-        if (200 === $response->getStatusCode()) {
+        if ($response->getStatusCode() === 200) {
             return $this->arrayToExpectationConverter->convert(
                 json_decode($response->getBody()->__toString(), true)
             );
@@ -148,7 +148,7 @@ class Phiremock
 
         $response = $this->connection->send($request);
 
-        if (200 === $response->getStatusCode()) {
+        if ($response->getStatusCode() === 200) {
             $json = json_decode($response->getBody()->__toString());
 
             return $json->count;
@@ -176,7 +176,7 @@ class Phiremock
 
         $response = $this->connection->send($request);
 
-        if (200 === $response->getStatusCode()) {
+        if ($response->getStatusCode() === 200) {
             return json_decode($response->getBody()->__toString());
         }
 
@@ -196,7 +196,7 @@ class Phiremock
             ->withBody(new StringStream(json_encode($scenarioState)));
 
         $response = $this->connection->send($request);
-        if (200 !== $response->getStatusCode()) {
+        if ($response->getStatusCode() !== 200) {
             $this->ensureIsNotErrorResponse($response);
         }
     }

@@ -49,8 +49,8 @@ class Host
         if (!\is_string($host)) {
             throw new \InvalidArgumentException('Host must be a string value');
         }
-        if (false === filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) &&
-            false === filter_var($host, FILTER_VALIDATE_IP)) {
+        if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false &&
+            filter_var($host, FILTER_VALIDATE_IP) === false) {
             throw new \InvalidArgumentException(sprintf('Invalid host number: %d', $host));
         }
     }

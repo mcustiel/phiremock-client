@@ -18,8 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
 
 class Is
 {

@@ -20,16 +20,14 @@ namespace Mcustiel\Phiremock\Client\Tests\Unit\Utils;
 
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilderResult;
+use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BodyCondition;
-use Mcustiel\Phiremock\Domain\Condition\Conditions\MethodCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
+use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
+use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
-use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use PHPUnit\Framework\TestCase;
-use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
-use Mcustiel\Phiremock\Client\Utils\Is;
-use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
 
 class ConditionsBuilderTest extends TestCase
 {
