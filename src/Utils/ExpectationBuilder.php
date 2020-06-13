@@ -21,6 +21,7 @@ namespace Mcustiel\Phiremock\Client\Utils;
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\Body;
 use Mcustiel\Phiremock\Domain\Response;
+use Mcustiel\Phiremock\Domain\HttpResponse;
 
 class ExpectationBuilder
 {
@@ -32,25 +33,12 @@ class ExpectationBuilder
         $this->requestBuilder = $requestBuilder;
     }
 
-    /**
-     * @param \Mcustiel\Phiremock\Domain\Response $responseBuilder
-     *
-     * @return \Mcustiel\Phiremock\Domain\Expectation
-     */
-    public function then(ResponseBuilder $responseBuilder)
+    public function then(ResponseBuilder $responseBuilder): Expectation
     {
         return $this->createExpectation($responseBuilder->build());
     }
 
-    /**
-     * Shortcut.
-     *
-     * @param int    $statusCode
-     * @param string $body
-     *
-     * return \Mcustiel\Phiremock\Domain\Expectation
-     */
-    public function thenRespond($statusCode, $body)
+    public function thenRespond(int $statusCode, string $body): HttpResponse
     {
         $response = HttpResponseBuilder::create($statusCode)
             ->andBody(new Body($body))
@@ -59,8 +47,7 @@ class ExpectationBuilder
         return $this->createExpectation($response);
     }
 
-    /** @return \Mcustiel\Phiremock\Domain\Expectation */
-    private function createExpectation(Response $response)
+    private function createExpectation(Response $response): Expectation
     {
         $requestOptions = $this->requestBuilder->build();
 

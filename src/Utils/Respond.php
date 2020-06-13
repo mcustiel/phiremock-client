@@ -20,12 +20,7 @@ namespace Mcustiel\Phiremock\Client\Utils;
 
 class Respond
 {
-    /**
-     * @param int $status
-     *
-     * @return \Mcustiel\Phiremock\Client\Utils\HttpResponseBuilder
-     */
-    public static function withStatusCode($status)
+    public static function withStatusCode(int $status): HttpResponseBuilder
     {
         return HttpResponseBuilder::create($status);
     }

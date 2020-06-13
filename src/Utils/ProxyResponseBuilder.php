@@ -20,6 +20,7 @@ namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Http\Uri;
 use Mcustiel\Phiremock\Domain\ProxyResponse;
+use Mcustiel\Phiremock\Domain\Response;
 
 class ProxyResponseBuilder extends ResponseBuilder
 {
@@ -31,8 +32,8 @@ class ProxyResponseBuilder extends ResponseBuilder
         $this->uri = $uri;
     }
 
-    /** @return ProxyResponse */
-    public function build()
+    /** @return Response|ProxyResponse */
+    public function build(): Response
     {
         $response = parent::build();
 

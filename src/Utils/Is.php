@@ -18,61 +18,37 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Conditions\MatchersEnum;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
 
 class Is
 {
-    /**
-     * @param mixed $value
-     *
-     * @return \Mcustiel\Phiremock\Domain\Condition
-     */
-    public static function equalTo($value)
+    public static function equalTo($value): Matcher
     {
-        return new Condition(MatchersEnum::EQUAL_TO, $value);
+        return MatcherFactory::equalsTo($value);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return \Mcustiel\Phiremock\Domain\Condition
-     */
-    public static function matching($value)
+    public static function matching($value): Matcher
     {
-        return new Condition(MatchersEnum::MATCHES, $value);
+        return MatcherFactory::matches($value);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return \Mcustiel\Phiremock\Domain\Condition
-     */
-    public static function sameStringAs($value)
+    public static function sameStringAs($value): Matcher
     {
-        return new Condition(MatchersEnum::SAME_STRING, $value);
+        return MatcherFactory::sameString($value);
     }
 
-    /**
-     * @param string $value
-     *
-     * @return \Mcustiel\Phiremock\Domain\Condition
-     */
-    public static function containing($value)
+    public static function containing($value): Matcher
     {
-        return new Condition(MatchersEnum::CONTAINS, $value);
+        return MatcherFactory::contains($value);
     }
 
-    /**
-     * @param string|array|\JsonSerializable $value
-     *
-     * @return \Mcustiel\Phiremock\Domain\Condition
-     */
-    public static function sameJsonObjectAs($value)
+    public static function sameJsonObjectAs($value): Matcher
     {
         if (\is_string($value)) {
-            return new Condition(MatchersEnum::SAME_JSON, $value);
+            return MatcherFactory::jsonEquals($value);
         }
 
-        return new Condition(MatchersEnum::SAME_JSON, json_encode($value));
+        return MatcherFactory::jsonEquals(json_encode($value));
     }
 }

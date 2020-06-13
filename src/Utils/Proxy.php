@@ -18,15 +18,12 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
+use Mcustiel\Phiremock\Domain\Http\Uri;
+
 class Proxy
 {
-    /**
-     * @param string $url
-     *
-     * @return ProxyResponseBuilder
-     */
-    public static function to($url)
+    public static function to(string $url): ProxyResponseBuilder
     {
-        return new ProxyResponseBuilder($url);
+        return new ProxyResponseBuilder(new Uri($url));
     }
 }

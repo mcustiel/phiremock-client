@@ -25,7 +25,7 @@ class ConditionsBuilderResult
 {
     /** @var RequestConditions */
     private $request;
-    /** @var ScenarioName */
+    /** @var ScenarioName|null */
     private $scenarioName;
 
     public function __construct(
@@ -36,14 +36,12 @@ class ConditionsBuilderResult
         $this->scenarioName = $scenarioName;
     }
 
-    /** @return RequestConditions */
-    public function getRequestConditions()
+    public function getRequestConditions(): RequestConditions
     {
         return $this->request;
     }
 
-    /** @return ScenarioName|null */
-    public function getScenarioName()
+    public function getScenarioName(): ?ScenarioName
     {
         return $this->scenarioName;
     }

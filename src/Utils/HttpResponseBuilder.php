@@ -26,6 +26,7 @@ use Mcustiel\Phiremock\Domain\Http\HeadersCollection;
 use Mcustiel\Phiremock\Domain\Http\HeaderValue;
 use Mcustiel\Phiremock\Domain\Http\StatusCode;
 use Mcustiel\Phiremock\Domain\HttpResponse;
+use Mcustiel\Phiremock\Domain\Response;
 
 class HttpResponseBuilder extends ResponseBuilder
 {
@@ -45,47 +46,26 @@ class HttpResponseBuilder extends ResponseBuilder
         $this->body = Body::createEmpty();
     }
 
-    /**
-     * @param int $statusCode
-     *
-     * @return self
-     */
-    public static function create($statusCode)
+    public static function create(int $statusCode): self
     {
         return new static(new StatusCode($statusCode));
     }
 
-    /**
-     * @param string $body
-     *
-     * @return self
-     */
-    public function andBody($body)
+    public function andBody(string $body): self
     {
         $this->body = new Body($body);
 
         return $this;
     }
 
-    /**
-     * @param string $body
-     *
-     * @return self
-     */
-    public function andBinaryBody($body)
+    public function andBinaryBody(string $body): self
     {
         $this->body = new BinaryBody($body);
 
         return $this;
     }
 
-    /**
-     * @param string $header
-     * @param string $value
-     *
-     * @return self
-     */
-    public function andHeader($header, $value)
+    public function andHeader(string $header, string $value): self
     {
         $this->headers->setHeader(
             new Header(new HeaderName($header), new HeaderValue($value))
@@ -94,8 +74,8 @@ class HttpResponseBuilder extends ResponseBuilder
         return $this;
     }
 
-    /** @return HttpResponse */
-    public function build()
+    /** @return Response|HttpResponse */
+    public function build(): Response
     {
         $response = parent::build();
 

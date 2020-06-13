@@ -25,28 +25,18 @@ use Mcustiel\Phiremock\Domain\Response;
 abstract class ResponseBuilder
 {
     /** @var ScenarioState */
-    private $scenarioState;
+    private $newScenarioState;
     /** @var Delay */
     private $delay;
 
-    /**
-     * @param string $scenarioState
-     *
-     * @return static
-     */
-    public function andSetScenarioStateTo($scenarioState)
+    public function andSetScenarioStateTo(string $scenarioState)
     {
-        $this->scenarioState = new ScenarioState($scenarioState);
+        $this->newScenarioState = new ScenarioState($scenarioState);
 
         return $this;
     }
 
-    /**
-     * @param int $delay
-     *
-     * @return static
-     */
-    public function andDelayInMillis($delay)
+    public function andDelayInMillis(int $delay)
     {
         $this->delay = new Delay($delay);
 
@@ -54,11 +44,11 @@ abstract class ResponseBuilder
     }
 
     /** @return Response */
-    public function build()
+    public function build(): Response
     {
         return new Response(
             $this->delay,
-            $this->scenarioState
+            $this->newScenarioState
         );
     }
 }

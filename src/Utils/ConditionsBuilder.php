@@ -19,21 +19,18 @@
 namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
-use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyCondition;
-use Mcustiel\Phiremock\Domain\Conditions\BinaryBody\BinaryBodyMatcher;
-use Mcustiel\Phiremock\Domain\Conditions\Body\BodyCondition;
-use Mcustiel\Phiremock\Domain\Conditions\Body\BodyMatcher;
-use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderCondition;
-use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderConditionCollection;
-use Mcustiel\Phiremock\Domain\Conditions\Header\HeaderMatcher;
-use Mcustiel\Phiremock\Domain\Conditions\Method\MethodCondition;
-use Mcustiel\Phiremock\Domain\Conditions\Method\MethodMatcher;
-use Mcustiel\Phiremock\Domain\Conditions\StringValue;
-use Mcustiel\Phiremock\Domain\Conditions\Url\UrlCondition;
-use Mcustiel\Phiremock\Domain\Conditions\Url\UrlMatcher;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\BinaryBodyCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\BodyCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderConditionCollection;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\MethodCondition;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
 
 class ConditionsBuilder
 {
@@ -44,15 +41,15 @@ class ConditionsBuilder
     /** @var BodyCondition */
     private $bodyCondition;
     /** @var HeaderConditionCollection */
-    private $headers;
+    private $headersConditions;
     /** @var ScenarioName */
     private $scenarioName;
     /** @var ScenarioState */
     private $scenarioIs;
 
-    public function __construct(MethodCondition $methodCondition, UrlCondition $urlCondition = null)
+    public function __construct(MethodCondition $methodCondition = null, UrlCondition $urlCondition = null)
     {
-        $this->headers = new HeaderConditionCollection();
+        $this->headersConditions = new HeaderConditionCollection();
         $this->methodCondition = $methodCondition;
         $this->urlCondition = $urlCondition;
     }
@@ -61,98 +58,73 @@ class ConditionsBuilder
      * @param string      $method
      * @param string|null $url
      *
-     * @return self
+     * @return static
      */
-    public static function create($method, $url = null)
+    public static function create(string $method = null, string $url = null): self
     {
         return new static(
-            new MethodCondition(MethodMatcher::equalTo(), new StringValue($method)),
-            null === $url
-                ? null :
-                new UrlCondition(UrlMatcher::equalTo(), new StringValue($url))
+            null === $url ? null : new MethodCondition(MatcherFactory::equalsTo($method)),
+            null === $url ? null : new UrlCondition(MatcherFactory::equalTo($url))
         );
     }
 
-    /**
-     * @return self
-     */
-    public function andBody(Condition $condition)
+    public function andMethod(Matcher $matcher): self
     {
-        $this->bodyCondition = new BodyCondition(
-            new BodyMatcher($condition->getMatcherName()),
-            new StringValue($condition->getValue())
-        );
+        if ($matcher instanceof Equals) {
+            $matcher = MatcherFactory::sameString($matcher->getCheckValue()->get());
+        }
+        $this->methodCondition = new MethodCondition($matcher);
 
         return $this;
     }
 
-    /**
-     * @return self
-     */
-    public function andBinaryBody(Condition $condition)
+    public function andBody(Matcher $matcher): self
     {
-        $this->bodyCondition = new BinaryBodyCondition(
-            new BinaryBodyMatcher($condition->getMatcherName()),
-            new StringValue($condition->getValue())
-        );
+        $this->bodyCondition = new BodyCondition($matcher);
 
         return $this;
     }
 
-    /**
-     * @param string $header
-     *
-     * @return self
-     */
-    public function andHeader($header, Condition $condition)
+    public function andBinaryBody(Matcher $matcher): self
     {
-        $this->headers->setHeaderCondition(
+        $this->bodyCondition = new BinaryBodyCondition($matcher);
+
+        return $this;
+    }
+
+    public function andHeader(string $header, Matcher $matcher): self
+    {
+        $this->headersConditions->setHeaderCondition(
             new HeaderName($header),
-            new HeaderCondition(
-                new HeaderMatcher($condition->getMatcherName()),
-                new StringValue($condition->getValue())
-            )
+            new HeaderCondition($matcher)
         );
 
         return $this;
     }
 
-    /**
-     * @return self
-     */
-    public function andUrl(Condition $condition)
+    public function andUrl(Matcher $matcher): self
     {
-        $this->urlCondition = new UrlCondition(
-            new UrlMatcher($condition->getMatcherName()),
-            new StringValue($condition->getValue())
-        );
+        $this->urlCondition = new UrlCondition($matcher);
 
         return $this;
     }
 
-    /**
-     * @param string $scenario
-     * @param string $scenarioState
-     *
-     * @return self
-     */
-    public function andScenarioState($scenario, $scenarioState)
+    public function andScenarioState(string $scenario, string $scenarioState): self
     {
         $this->scenarioName = new ScenarioName($scenario);
-        $this->scenarioIs = new ScenarioState($scenarioState);
+        $this->scenarioState = new ScenarioState($scenarioState);
 
         return $this;
     }
 
-    /** @return ConditionsBuilderResult */
-    public function build()
+    public function build(): ConditionsBuilderResult
     {
         return new ConditionsBuilderResult(
             new RequestConditions(
                 $this->methodCondition,
                 $this->urlCondition,
                 $this->bodyCondition,
-                $this->headers
+                $this->headersConditions->iterator()
             ),
             $this->scenarioName
         );
