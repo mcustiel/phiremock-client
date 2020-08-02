@@ -60,10 +60,10 @@ class ConditionsBuilder
      *
      * @return static
      */
-    public static function create(string $method = null, string $url = null): self
+    public static function create(?string $method = null, ?string $url = null): self
     {
         return new static(
-            $url === null ? null : new MethodCondition(MatcherFactory::equalsTo($method)),
+            $method === null ? null : new MethodCondition(MatcherFactory::sameString($method)),
             $url === null ? null : new UrlCondition(MatcherFactory::equalTo($url))
         );
     }

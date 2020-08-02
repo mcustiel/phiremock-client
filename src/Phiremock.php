@@ -46,7 +46,7 @@ class Phiremock
     /** @var ArrayToExpectationConverter */
     private $arrayToExpectationConverter;
 
-    /** @var ArrayToExpectationConverter */
+    /** @var ExpectationToArrayConverter */
     private $expectationToArrayConverter;
 
     /** @var Host */
@@ -59,13 +59,13 @@ class Phiremock
         Host $host,
         Port $port,
         RemoteConnectionInterface $remoteConnection,
-        ExpectationToArrayConverter $ExpectationToArrayConverter,
+        ExpectationToArrayConverter $expectationToArrayConverter,
         ArrayToExpectationConverter $arrayToExpectationConverter
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
-        $this->expectationToArrayConverter = $ExpectationToArrayConverter;
+        $this->expectationToArrayConverter = $expectationToArrayConverter;
         $this->arrayToExpectationConverter = $arrayToExpectationConverter;
     }
 
@@ -126,13 +126,19 @@ class Phiremock
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
         $response = $this->connection->send($request);
 
-        if ($response->getStatusCode() === 200) {
-            return $this->arrayToExpectationConverter->convert(
-                json_decode($response->getBody()->__toString(), true)
-            );
-        }
-
         $this->ensureIsNotErrorResponse($response);
+
+        if ($response->getStatusCode() === 200) {
+            $arraysList = json_decode($response->getBody()->__toString(), true);
+            $expectationsList = [];
+
+            foreach ($arraysList as $expectationArray) {
+                $expectationsList[] = $this->arrayToExpectationConverter
+                    ->convert($expectationArray);
+            }
+            return $expectationsList;
+        }
+        throw new \Exception('Unexpected exception');
     }
 
     /**

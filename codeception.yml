@@ -1,0 +1,20 @@
+extensions:
+    enabled: 
+        - Codeception\Extension\RunFailed
+        - Mcustiel\Codeception\Extensions\ServerControl
+
+params: 
+    - env
+
+paths:
+    tests: tests/acceptance
+    output: tests/acceptance/_output
+    data: tests/acceptance/_data
+    support: tests/acceptance/_support
+    envs: tests/acceptance/_envs
+
+settings:
+    shuffle: false
+    lint: true
+    colors: true
+    memory_limit: 1024M

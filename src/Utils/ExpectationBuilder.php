@@ -22,6 +22,7 @@ use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\Body;
 use Mcustiel\Phiremock\Domain\HttpResponse;
 use Mcustiel\Phiremock\Domain\Response;
+use Mcustiel\Phiremock\Domain\Version;
 
 class ExpectationBuilder
 {
@@ -54,7 +55,9 @@ class ExpectationBuilder
         return new Expectation(
             $requestOptions->getRequestConditions(),
             $response,
-            $requestOptions->getScenarioName()
+            $requestOptions->getScenarioName(),
+            null,
+            new Version('2')
         );
     }
 }
