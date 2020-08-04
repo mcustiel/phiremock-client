@@ -29,6 +29,7 @@ use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
 use Mcustiel\Phiremock\Domain\Expectation;
+use Mcustiel\Phiremock\Domain\HttpResponse;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
@@ -69,9 +70,7 @@ class Phiremock
         $this->arrayToExpectationConverter = $arrayToExpectationConverter;
     }
 
-    /**
-     * Creates an expectation with a response for a given request.
-     */
+    /** Creates an expectation with a response for a given request. */
     public function createExpectation(Expectation $expectation): void
     {
         $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
@@ -93,10 +92,8 @@ class Phiremock
         $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
-    /**
-     * Restores pre-defined expectations and resets scenarios and requests counter.
-     */
-    public function reset()
+    /** Restores pre-defined expectations and resets scenarios and requests counter. */
+    public function reset(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('post');
@@ -104,10 +101,8 @@ class Phiremock
         $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
-    /**
-     * Clears all the currently configured expectations.
-     */
-    public function clearExpectations()
+    /** Clears all the currently configured expectations. */
+    public function clearExpectations(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
@@ -115,12 +110,8 @@ class Phiremock
         $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
-    /**
-     * Lists all currently configured expectations.
-     *
-     * @return \Mcustiel\Phiremock\Domain\Expectation[]
-     */
-    public function listExpectations()
+    /** @return \Mcustiel\Phiremock\Domain\Expectation[] */
+    public function listExpectations(): array
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
@@ -141,26 +132,29 @@ class Phiremock
         throw new \Exception('Unexpected exception');
     }
 
-    /**
-     * Counts the amount of times a request was executed in phiremock.
-     *
-     * @return int
-     */
-    public function countExecutions(ConditionsBuilder $requestBuilder)
+    /** @return int */
+    public function countExecutions(?ConditionsBuilder $requestBuilder = null): int
     {
-        $requestBuilderResult = $requestBuilder->build();
-        $expectation = new Expectation(
-            $requestBuilderResult->getRequestConditions(),
-            Response::createEmpty(),
-            $requestBuilderResult->getScenarioName()
-        );
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
         $request = (new PsrRequest())
             ->withUri($uri)
             ->withMethod('post')
-            ->withHeader('Content-Type', 'application/json')
-            ->withBody(new StringStream(json_encode($expectation)));
+            ->withHeader('Content-Type', 'application/json');
+        if ($requestBuilder !== null) {
+            $requestBuilderResult = $requestBuilder->build();
+            $expectation = new Expectation(
+                $requestBuilderResult->getRequestConditions(),
+                HttpResponse::createEmpty(),
+                $requestBuilderResult->getScenarioName()
+            );
+            $jsonBody = json_encode($this->expectationToArrayConverter->convert($expectation));
+            $request = $request->withBody(
+                new StringStream(
+                    $jsonBody
+                )
+            );
+        }
 
         $response = $this->connection->send($request);
 
@@ -173,40 +167,40 @@ class Phiremock
         $this->ensureIsNotErrorResponse($response);
     }
 
-    /**
-     * List requests was executed in phiremock.
-     *
-     * @return array
-     */
-    public function listExecutions(ConditionsBuilder $requestBuilder)
+    /** @return array */
+    public function listExecutions(?ConditionsBuilder $requestBuilder = null): array
     {
-        $requestBuilderResult = $requestBuilder->build();
-        $expectation = new Expectation(
-            $requestBuilderResult->getRequestConditions(),
-            Response::createEmpty(),
-            $requestBuilderResult->getScenarioName()
-        );
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
         $request = (new PsrRequest())
             ->withUri($uri)
             ->withMethod('put')
-            ->withHeader('Content-Type', 'application/json')
-            ->withBody(new StringStream(json_encode($expectation)));
+            ->withHeader('Content-Type', 'application/json');
+        if ($requestBuilder !== null) {
+            $requestBuilderResult = $requestBuilder->build();
+            $expectation = new Expectation(
+                $requestBuilderResult->getRequestConditions(),
+                HttpResponse::createEmpty(),
+                $requestBuilderResult->getScenarioName()
+            );
+            $request = $request->withBody(
+                new StringStream(
+                    json_encode($this->expectationToArrayConverter->convert($expectation))
+                )
+            );
+        }
 
         $response = $this->connection->send($request);
 
         if ($response->getStatusCode() === 200) {
-            return json_decode($response->getBody()->__toString());
+            return json_decode($response->getBody()->__toString(), true);
         }
 
         $this->ensureIsNotErrorResponse($response);
     }
 
-    /**
-     * Sets scenario state.
-     */
-    public function setScenarioState(ScenarioStateInfo $scenarioState)
+    /** Sets scenario state. */
+    public function setScenarioState(ScenarioStateInfo $scenarioState): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())
@@ -221,10 +215,8 @@ class Phiremock
         }
     }
 
-    /**
-     * Resets all the scenarios to start state.
-     */
-    public function resetScenarios()
+    /** Resets all the scenarios to start state. */
+    public function resetScenarios(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
@@ -232,10 +224,8 @@ class Phiremock
         $this->ensureIsNotErrorResponse($this->connection->send($request));
     }
 
-    /**
-     * Resets all the requests counters to 0.
-     */
-    public function resetRequestsCounter()
+    /** Resets all the requests counters to 0. */
+    public function resetRequestsCounter(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
@@ -248,7 +238,7 @@ class Phiremock
      *
      * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
      */
-    public static function on(ConditionsBuilder $requestBuilder)
+    public static function on(ConditionsBuilder $requestBuilder): ExpectationBuilder
     {
         return new ExpectationBuilder($requestBuilder);
     }
@@ -261,17 +251,14 @@ class Phiremock
      *
      * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
      */
-    public static function onRequest($method, $url)
+    public static function onRequest(string $method, string $url): ExpectationBuilder
     {
         return new ExpectationBuilder(
             ConditionsBuilder::create($method, $url)
         );
     }
 
-    /**
-     * @return \Laminas\Diactoros\Uri
-     */
-    private function createBaseUri()
+    private function createBaseUri(): Uri
     {
         return (new Uri())
             ->withScheme('http')

@@ -3,3 +3,9 @@ modules:
     enabled:
         - \Helper\Api
         - Asserts
+        - REST
+    config:
+        REST:
+            depends: PhpBrowser
+            url: 'http://localhost:8086'        
+        

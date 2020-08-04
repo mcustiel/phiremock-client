@@ -21,6 +21,7 @@ class ServerControl extends \Codeception\Extension
         $this->writeln('Starting Phiremock server');
 
         $commandLine = [
+            'exec',
             './vendor/bin/phiremock',
             '-d',
             '>',
