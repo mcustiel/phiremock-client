@@ -28,8 +28,11 @@ use Mcustiel\Phiremock\Common\Http\RemoteConnectionInterface;
 use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
+use Mcustiel\Phiremock\Common\Utils\ScenarioStateInfoToArrayConverter;
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\HttpResponse;
+use Mcustiel\Phiremock\Domain\Options\ScenarioName;
+use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Psr\Http\Message\ResponseInterface;
@@ -50,6 +53,9 @@ class Phiremock
     /** @var ExpectationToArrayConverter */
     private $expectationToArrayConverter;
 
+    /** @var ScenarioStateInfoToArrayConverter */
+    private $scenarioStateInfoToArrayConverter;
+
     /** @var Host */
     private $host;
 
@@ -61,13 +67,15 @@ class Phiremock
         Port $port,
         RemoteConnectionInterface $remoteConnection,
         ExpectationToArrayConverter $expectationToArrayConverter,
-        ArrayToExpectationConverter $arrayToExpectationConverter
+        ArrayToExpectationConverter $arrayToExpectationConverter,
+        ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter
     ) {
         $this->host = $host;
         $this->port = $port;
         $this->connection = $remoteConnection;
         $this->expectationToArrayConverter = $expectationToArrayConverter;
         $this->arrayToExpectationConverter = $arrayToExpectationConverter;
+        $this->scenarioStateInfoToArrayConverter = $scenarioStateInfoToArrayConverter;
     }
 
     /** Creates an expectation with a response for a given request. */
@@ -200,14 +208,24 @@ class Phiremock
     }
 
     /** Sets scenario state. */
-    public function setScenarioState(ScenarioStateInfo $scenarioState): void
+    public function setScenarioState(string $scenarioName, string $scenarioState): void
     {
+        $scenarioStateInfo = new ScenarioStateInfo(
+            new ScenarioName($scenarioName),
+            new ScenarioState($scenarioState)
+        );
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())
             ->withUri($uri)
             ->withMethod('put')
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(new StringStream(json_encode($scenarioState)));
+            ->withBody(
+                new StringStream(
+                    json_encode(
+                        $this->scenarioStateInfoToArrayConverter->convert($scenarioStateInfo)
+                    )
+                )
+            );
 
         $response = $this->connection->send($request);
         if ($response->getStatusCode() !== 200) {

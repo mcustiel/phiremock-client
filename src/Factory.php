@@ -52,7 +52,8 @@ class Factory
             $port,
             $this->createRemoteConnection(),
             $this->phiremockFactory->createExpectationToArrayConverter(),
-            $this->phiremockFactory->createArrayToExpectationConverter()
+            $this->phiremockFactory->createArrayToExpectationConverter(),
+            $this->phiremockFactory->createScenarioStateInfoToArrayConverter()
         );
     }
 

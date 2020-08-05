@@ -112,7 +112,7 @@ class ConditionsBuilder
     public function andScenarioState(string $scenario, string $scenarioState): self
     {
         $this->scenarioName = new ScenarioName($scenario);
-        $this->scenarioState = new ScenarioState($scenarioState);
+        $this->scenarioIs = new ScenarioState($scenarioState);
 
         return $this;
     }
@@ -124,7 +124,8 @@ class ConditionsBuilder
                 $this->methodCondition,
                 $this->urlCondition,
                 $this->bodyCondition,
-                $this->headersConditions->iterator()
+                $this->headersConditions->iterator(),
+                $this->scenarioIs
             ),
             $this->scenarioName
         );
