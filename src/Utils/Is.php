@@ -18,32 +18,36 @@
 
 namespace Mcustiel\Phiremock\Client\Utils;
 
-use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\CaseInsensitiveEquals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Contains;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\JsonEquals;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\RegExp;
 
 class Is
 {
-    public static function equalTo($value): Matcher
+    public static function equalTo($value): Equals
     {
         return MatcherFactory::equalsTo($value);
     }
 
-    public static function matching($value): Matcher
+    public static function matching($value): RegExp
     {
         return MatcherFactory::matches($value);
     }
 
-    public static function sameStringAs($value): Matcher
+    public static function sameStringAs($value): CaseInsensitiveEquals
     {
         return MatcherFactory::sameString($value);
     }
 
-    public static function containing($value): Matcher
+    public static function containing($value): Contains
     {
         return MatcherFactory::contains($value);
     }
 
-    public static function sameJsonObjectAs($value): Matcher
+    public static function sameJsonObjectAs($value): JsonEquals
     {
         if (\is_string($value)) {
             return MatcherFactory::jsonEquals($value);

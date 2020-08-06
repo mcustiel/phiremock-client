@@ -19,8 +19,6 @@
 namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Expectation;
-use Mcustiel\Phiremock\Domain\Http\Body;
-use Mcustiel\Phiremock\Domain\HttpResponse;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\Version;
 
@@ -39,10 +37,10 @@ class ExpectationBuilder
         return $this->createExpectation($responseBuilder->build());
     }
 
-    public function thenRespond(int $statusCode, string $body): HttpResponse
+    public function thenRespond(int $statusCode, string $body): Expectation
     {
         $response = HttpResponseBuilder::create($statusCode)
-            ->andBody(new Body($body))
+            ->andBody($body)
             ->build();
 
         return $this->createExpectation($response);

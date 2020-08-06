@@ -28,9 +28,15 @@ use Mcustiel\Phiremock\Client\Utils\Respond;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\CaseInsensitiveEquals;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\Contains;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
+use Mcustiel\Phiremock\Domain\Condition\Matchers\JsonEquals;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\RegExp;
 
 // ConditionBuilder creators
+
+function request(): ConditionsBuilder
+{
+    return new ConditionsBuilder();
+}
 
 function getRequest(): ConditionsBuilder
 {
@@ -94,7 +100,7 @@ function matchesRegex(string $value): RegExp
     return Is::matching($value);
 }
 
-function isSameJsonAs($value): RegExp
+function isSameJsonAs($value): JsonEquals
 {
     return Is::sameJsonObjectAs($value);
 }

@@ -64,7 +64,7 @@ class ConditionsBuilder
     {
         return new static(
             $method === null ? null : new MethodCondition(MatcherFactory::sameString($method)),
-            $url === null ? null : new UrlCondition(MatcherFactory::equalTo($url))
+            $url === null ? null : new UrlCondition(MatcherFactory::equalsTo($url))
         );
     }
 

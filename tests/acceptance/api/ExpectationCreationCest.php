@@ -55,6 +55,29 @@ class ExpectationCreationCest
         $this->assertExpectationWasCorrectlyCreated($I, $expectations);
     }
 
+    public function createsExpectationUsingShortcuts(\ApiTester $I)
+    {
+        $this->_getPhiremockClient()->createExpectation(
+            Phiremock::onRequest(MethodsEnum::GET, '/potato/tomato')
+                ->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
+        );
+        $expectations = $this->_getPhiremockClient()->listExpectations();
+        $I->assertCount(1, $expectations);
+        $expectation = $expectations[0];
+        $I->assertSame('2', $expectation->getVersion()->asString());
+        $I->assertTrue($expectation->getRequest()->hasMethod());
+        $I->assertSame(MatchersEnum::SAME_STRING, $expectation->getRequest()->getMethod()->getMatcher()->getName());
+        $I->assertSame(MethodsEnum::GET, $expectation->getRequest()->getMethod()->getMatcher()->getCheckValue()->get());
+        $I->assertTrue($expectation->getRequest()->hasUrl());
+        $I->assertSame(MatchersEnum::EQUAL_TO, $expectation->getRequest()->getUrl()->getMatcher()->getName());
+        $I->assertSame('/potato/tomato', $expectation->getRequest()->getUrl()->getMatcher()->getCheckValue()->get());
+
+        /** @var \Mcustiel\Phiremock\Domain\HttpResponse $response */
+        $response = $expectation->getResponse();
+        $I->assertSame(418, $response->getStatusCode()->asInt());
+        $I->assertSame('Is the answer to the Ultimate Question of Life, The Universe, and Everything', $response->getBody()->asString());
+    }
+
     private function assertExpectationWasCorrectlyCreated(ApiTester $I, array $expectations)
     {
         $I->assertCount(1, $expectations);
