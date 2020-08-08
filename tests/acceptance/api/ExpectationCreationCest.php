@@ -13,6 +13,7 @@ use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Respond;
 use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
+use function Mcustiel\Phiremock\Client\request;
 
 class ExpectationCreationCest
 {
@@ -76,6 +77,34 @@ class ExpectationCreationCest
         $response = $expectation->getResponse();
         $I->assertSame(418, $response->getStatusCode()->asInt());
         $I->assertSame('Is the answer to the Ultimate Question of Life, The Universe, and Everything', $response->getBody()->asString());
+    }
+
+    public function createsCatchAllExpectation(\ApiTester $I)
+    {
+        $this->_getPhiremockClient()->createExpectation(
+            Phiremock::on(request())->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
+        );
+        $expectations = $this->_getPhiremockClient()->listExpectations();
+        $I->assertCount(1, $expectations);
+        $expectation = $expectations[0];
+        $I->assertSame('2', $expectation->getVersion()->asString());
+        $I->assertFalse($expectation->getRequest()->hasMethod());
+        $I->assertFalse($expectation->getRequest()->hasUrl());
+        $I->assertFalse($expectation->getRequest()->hasBody());
+        $I->assertFalse($expectation->getRequest()->hasHeaders());
+
+        /** @var \Mcustiel\Phiremock\Domain\HttpResponse $response */
+        $response = $expectation->getResponse();
+        $I->assertSame(418, $response->getStatusCode()->asInt());
+        $I->assertSame('Is the answer to the Ultimate Question of Life, The Universe, and Everything', $response->getBody()->asString());
+
+        $I->sendPOST('/does/not/matter');
+        $I->seeResponseCodeIs(418);
+        $I->seeResponseEquals('Is the answer to the Ultimate Question of Life, The Universe, and Everything');
+
+        $I->sendGET('/potato');
+        $I->seeResponseCodeIs(418);
+        $I->seeResponseEquals('Is the answer to the Ultimate Question of Life, The Universe, and Everything');
     }
 
     private function assertExpectationWasCorrectlyCreated(ApiTester $I, array $expectations)
