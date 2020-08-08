@@ -7,13 +7,13 @@ use function Mcustiel\Phiremock\Client\contains;
 use function Mcustiel\Phiremock\Client\getRequest;
 use function Mcustiel\Phiremock\Client\isEqualTo;
 use Mcustiel\Phiremock\Client\Phiremock;
+use function Mcustiel\Phiremock\Client\request;
 use function Mcustiel\Phiremock\Client\respond as frespond;
 use Mcustiel\Phiremock\Client\Utils\A;
 use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Respond;
 use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
-use function Mcustiel\Phiremock\Client\request;
 
 class ExpectationCreationCest
 {

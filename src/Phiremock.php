@@ -97,7 +97,7 @@ class Phiremock
             ->withMethod('post')
             ->withHeader('Content-Type', 'application/json')
             ->withBody(new StringStream($body));
-        $this->ensureIsNotErrorResponse($this->connection->send($request));
+        $this->ensureIsExpectedResponse(201, $this->connection->send($request));
     }
 
     /** Restores pre-defined expectations and resets scenarios and requests counter. */
@@ -106,7 +106,7 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('post');
 
-        $this->ensureIsNotErrorResponse($this->connection->send($request));
+        $this->ensureIsExpectedResponse(200, $this->connection->send($request));
     }
 
     /** Clears all the currently configured expectations. */
@@ -115,7 +115,7 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->ensureIsNotErrorResponse($this->connection->send($request));
+        $this->ensureIsExpectedResponse(200, $this->connection->send($request));
     }
 
     /** @return \Mcustiel\Phiremock\Domain\Expectation[] */
@@ -125,19 +125,16 @@ class Phiremock
         $request = (new PsrRequest())->withUri($uri)->withMethod('get');
         $response = $this->connection->send($request);
 
-        $this->ensureIsNotErrorResponse($response);
+        $this->ensureIsExpectedResponse(200, $response);
 
-        if ($response->getStatusCode() === 200) {
-            $arraysList = json_decode($response->getBody()->__toString(), true);
-            $expectationsList = [];
+        $arraysList = json_decode($response->getBody()->__toString(), true);
+        $expectationsList = [];
 
-            foreach ($arraysList as $expectationArray) {
-                $expectationsList[] = $this->arrayToExpectationConverter
-                    ->convert($expectationArray);
-            }
-            return $expectationsList;
+        foreach ($arraysList as $expectationArray) {
+            $expectationsList[] = $this->arrayToExpectationConverter
+                ->convert($expectationArray);
         }
-        throw new \Exception('Unexpected exception');
+        return $expectationsList;
     }
 
     /** @return int */
@@ -166,13 +163,10 @@ class Phiremock
 
         $response = $this->connection->send($request);
 
-        if ($response->getStatusCode() === 200) {
-            $json = json_decode($response->getBody()->__toString());
+        $this->ensureIsExpectedResponse(200, $response);
+        $json = json_decode($response->getBody()->__toString());
 
-            return $json->count;
-        }
-
-        $this->ensureIsNotErrorResponse($response);
+        return $json->count;
     }
 
     /** @return array */
@@ -199,12 +193,8 @@ class Phiremock
         }
 
         $response = $this->connection->send($request);
-
-        if ($response->getStatusCode() === 200) {
-            return json_decode($response->getBody()->__toString(), true);
-        }
-
-        $this->ensureIsNotErrorResponse($response);
+        $this->ensureIsExpectedResponse(200, $response);
+        return json_decode($response->getBody()->__toString(), true);
     }
 
     /** Sets scenario state. */
@@ -228,9 +218,7 @@ class Phiremock
             );
 
         $response = $this->connection->send($request);
-        if ($response->getStatusCode() !== 200) {
-            $this->ensureIsNotErrorResponse($response);
-        }
+        $this->ensureIsExpectedResponse(200, $response);
     }
 
     /** Resets all the scenarios to start state. */
@@ -239,7 +227,7 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->ensureIsNotErrorResponse($this->connection->send($request));
+        $this->ensureIsExpectedResponse(200, $this->connection->send($request));
     }
 
     /** Resets all the requests counters to 0. */
@@ -248,7 +236,7 @@ class Phiremock
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
         $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
 
-        $this->ensureIsNotErrorResponse($this->connection->send($request));
+        $this->ensureIsExpectedResponse(200, $this->connection->send($request));
     }
 
     /**
@@ -287,16 +275,20 @@ class Phiremock
     /**
      * @throws \RuntimeException
      */
-    private function ensureIsNotErrorResponse(ResponseInterface $response)
+    private function ensureIsExpectedResponse(int $statusCode, ResponseInterface $response)
     {
-        if ($response->getStatusCode() >= 500) {
-            $errors = json_decode($response->getBody()->__toString(), true)['details'];
+        $responseStatusCode = $response->getStatusCode();
+        if ($responseStatusCode !== $statusCode) {
+            if ($responseStatusCode >= 500) {
+                $errors = json_decode($response->getBody()->__toString(), true)['details'];
 
-            throw new \RuntimeException('An error occurred creating the expectation: ' . ($errors ? var_export($errors, true) : '') . $response->getBody()->__toString());
-        }
+                throw new \RuntimeException('An error occurred creating the expectation: ' . ($errors ? var_export($errors, true) : '') . $response->getBody()->__toString());
+            }
 
-        if ($response->getStatusCode() >= 400) {
-            throw new \RuntimeException('Request error while creating the expectation');
+            if ($responseStatusCode >= 400) {
+                throw new \RuntimeException('Request error while creating the expectation');
+            }
+            throw new \RuntimeException('Unexpected response while creating the expectation');
         }
     }
 }
