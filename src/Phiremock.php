@@ -199,7 +199,7 @@ class Phiremock
 
         $response = $this->connection->send($request);
         $this->ensureIsExpectedResponse(200, $response);
-        return json_decode($response->getBody()->__toString(), true);
+        return json_decode($response->getBody()->__toString());
     }
 
     /** Sets scenario state. */

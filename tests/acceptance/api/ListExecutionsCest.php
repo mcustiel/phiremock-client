@@ -18,10 +18,10 @@ class ListExecutionsCest
         $I->assertCount(1, $requests);
         $I->assertEquals(
             [
-                [
+                (object) [
                     'method'  => 'GET',
                     'url'     => 'http://localhost:8086/tomato',
-                    'headers' => [
+                    'headers' => (object) [
                         'Host' => [
                             'localhost:8086',
                         ],
@@ -72,20 +72,53 @@ class ListExecutionsCest
             'body'    => '{"banana":"coconut"}',
         ];
 
+        $expectedGetRequest = (object) [
+            'method'  => 'GET',
+            'url'     => 'http://localhost:8086/tomato',
+            'headers' => (object) [
+                'Host' => [
+                    'localhost:8086',
+                ],
+                'User-Agent' => [
+                    'Symfony BrowserKit',
+                ]
+            ],
+            'cookies' => [],
+            'body'    => '',
+        ];
+        $expectedPostRequest = (object) [
+            'method'  => 'POST',
+            'url'     => 'http://localhost:8086/potato',
+            'headers' => (object) [
+                'Host' => [
+                    'localhost:8086',
+                ],
+                'User-Agent' => [
+                    'Symfony BrowserKit',
+                ],
+                'Content-Type'   => ['application/json'],
+                'Referer'        => ['http://localhost:8086/tomato'],
+                'Content-Length' => ['20'],
+            ],
+            'cookies' => [],
+            'body'    => '{"banana":"coconut"}',
+        ];
+
         $I->assertEmpty($this->_getPhiremockClient()->listExecutions());
         $I->sendGet('/tomato');
         $I->haveHttpHeader('Content-Type', 'application/json');
         $I->sendPost('/potato', ['banana' => 'coconut']);
+
         $requests = $this->_getPhiremockClient()->listExecutions(getRequest());
         $I->assertCount(1, $requests);
+        $I->assertEquals([$expectedGetRequest], $requests);
 
-        $I->assertEquals([$getRequest], $requests);
         $requests = $this->_getPhiremockClient()->listExecutions(postRequest());
         $I->assertCount(1, $requests);
+        $I->assertEquals([$expectedPostRequest], $requests);
 
-        $I->assertEquals([$postRequest], $requests);
         $requests = $this->_getPhiremockClient()->listExecutions();
         $I->assertCount(2, $requests);
-        $I->assertEquals([$getRequest, $postRequest], $requests);
+        $I->assertEquals([$expectedGetRequest, $expectedPostRequest], $requests);
     }
 }
