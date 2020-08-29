@@ -35,6 +35,7 @@ use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
+use Mcustiel\Phiremock\Domain\Version;
 use Psr\Http\Message\ResponseInterface;
 
 class Phiremock
@@ -151,7 +152,9 @@ class Phiremock
             $expectation = new Expectation(
                 $requestBuilderResult->getRequestConditions(),
                 HttpResponse::createEmpty(),
-                $requestBuilderResult->getScenarioName()
+                $requestBuilderResult->getScenarioName(),
+                null,
+                new Version('2')
             );
             $jsonBody = json_encode($this->expectationToArrayConverter->convert($expectation));
             $request = $request->withBody(
@@ -183,7 +186,9 @@ class Phiremock
             $expectation = new Expectation(
                 $requestBuilderResult->getRequestConditions(),
                 HttpResponse::createEmpty(),
-                $requestBuilderResult->getScenarioName()
+                $requestBuilderResult->getScenarioName(),
+                null,
+                new Version('2')
             );
             $request = $request->withBody(
                 new StringStream(
