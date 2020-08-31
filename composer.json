@@ -44,7 +44,8 @@
     "autoload-dev": {
         "psr-4": {
             "Mcustiel\\Codeception\\Extensions\\": "tests/codeception/extensions",
-            "Mcustiel\\Phiremock\\Client\\Tests\\Acceptance\\": "tests/acceptance/api"
+            "Mcustiel\\Phiremock\\Client\\Tests\\Acceptance\\": "tests/acceptance/api",
+            "Mcustiel\\Phiremock\\Client\\Tests\\Unit\\": "tests/unit"
         }
     }
 }

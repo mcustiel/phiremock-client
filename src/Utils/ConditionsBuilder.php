@@ -20,6 +20,8 @@ namespace Mcustiel\Phiremock\Client\Utils;
 
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BinaryBodyCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BodyCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\FormDataCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\FormFieldCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderConditionCollection;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\MethodCondition;
@@ -28,6 +30,7 @@ use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\Matcher;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
 use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
+use Mcustiel\Phiremock\Domain\Http\FormFieldName;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
@@ -46,20 +49,17 @@ class ConditionsBuilder
     private $scenarioName;
     /** @var ScenarioState */
     private $scenarioIs;
+    /** @var FormDataCondition */
+    private $formData;
 
     public function __construct(MethodCondition $methodCondition = null, UrlCondition $urlCondition = null)
     {
         $this->headersConditions = new HeaderConditionCollection();
+        $this->formData = new FormDataCondition();
         $this->methodCondition = $methodCondition;
         $this->urlCondition = $urlCondition;
     }
 
-    /**
-     * @param string      $method
-     * @param string|null $url
-     *
-     * @return static
-     */
     public static function create(?string $method = null, ?string $url = null): self
     {
         return new static(
@@ -102,6 +102,16 @@ class ConditionsBuilder
         return $this;
     }
 
+    public function andFormField(string $fieldName, Matcher $matcher): self
+    {
+        $this->formData->setFieldCondition(
+            new FormFieldName($fieldName),
+            new FormFieldCondition($matcher)
+        );
+
+        return $this;
+    }
+
     public function andUrl(Matcher $matcher): self
     {
         $this->urlCondition = new UrlCondition($matcher);
@@ -125,6 +135,7 @@ class ConditionsBuilder
                 $this->urlCondition,
                 $this->bodyCondition,
                 $this->headersConditions->iterator(),
+                $this->formData->iterator(),
                 $this->scenarioIs
             ),
             $this->scenarioName

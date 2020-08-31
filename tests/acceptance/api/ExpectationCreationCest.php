@@ -13,6 +13,7 @@ use Mcustiel\Phiremock\Client\Utils\A;
 use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Respond;
 use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
+use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
 
 class ExpectationCreationCest
@@ -27,6 +28,7 @@ class ExpectationCreationCest
                     ->andUrl(Is::equalTo('/potato/tomato'))
                     ->andBody(Is::containing('42'))
                     ->andHeader('Accept', Is::equalTo('application/banana'))
+                    ->andFormField('name', Is::equalTo('potato'))
             )->then(
                 Respond::withStatusCode(418)
                     ->andBody('Is the answer to the Ultimate Question of Life, The Universe, and Everything')
@@ -45,6 +47,7 @@ class ExpectationCreationCest
                     ->andUrl(isEqualTo('/potato/tomato'))
                     ->andBody(contains('42'))
                     ->andHeader('Accept', isEqualTo('application/banana'))
+                    ->andFormField('name', isEqualTo('potato'))
             )->then(
                 frespond(418)
                     ->andBody('Is the answer to the Ultimate Question of Life, The Universe, and Everything')
@@ -110,6 +113,7 @@ class ExpectationCreationCest
     private function assertExpectationWasCorrectlyCreated(ApiTester $I, array $expectations)
     {
         $I->assertCount(1, $expectations);
+        /** @var Expectation $expectation */
         $expectation = $expectations[0];
         $I->assertSame('2', $expectation->getVersion()->asString());
         $I->assertTrue($expectation->getRequest()->hasMethod());
@@ -125,6 +129,11 @@ class ExpectationCreationCest
         $I->assertSame('Accept', $expectation->getRequest()->getHeaders()->key()->asString());
         $I->assertSame(MatchersEnum::EQUAL_TO, $expectation->getRequest()->getHeaders()->current()->getMatcher()->getName());
         $I->assertSame('application/banana', $expectation->getRequest()->getHeaders()->current()->getValue()->get());
+
+        $I->assertGreaterThan(0, $expectation->getRequest()->getFormFields()->count());
+        $I->assertSame('name', $expectation->getRequest()->getFormFields()->key()->asString());
+        $I->assertSame(MatchersEnum::EQUAL_TO, $expectation->getRequest()->getFormFields()->current()->getMatcher()->getName());
+        $I->assertSame('potato', $expectation->getRequest()->getFormFields()->current()->getValue()->get());
 
         /** @var \Mcustiel\Phiremock\Domain\HttpResponse $response */
         $response = $expectation->getResponse();

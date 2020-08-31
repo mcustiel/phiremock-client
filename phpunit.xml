@@ -17,15 +17,15 @@
  * along with Phiremock.  If not, see <http://www.gnu.org/licenses/>.
  */
  -->
-<phpunit bootstrap="./bootstrap.php" colors="true"
+<phpunit bootstrap="./tests/bootstrap.php" colors="true"
 	convertErrorsToExceptions="true" convertNoticesToExceptions="false"
 	convertWarningsToExceptions="false">
 	<testsuite name="UnitTests">
-		<directory>./unit</directory>
+		<directory>./tests/unit</directory>
 	</testsuite>
 	<filter>
 		<whitelist addUncoveredFilesFromWhitelist="true">
-			<directory suffix=".php">../src</directory>
+			<directory suffix=".php">./src</directory>
 		</whitelist>
 	</filter>
 	<php>
