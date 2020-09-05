@@ -49,5 +49,8 @@
             "Mcustiel\\Phiremock\\Client\\Tests\\Acceptance\\": "tests/acceptance/api",
             "Mcustiel\\Phiremock\\Client\\Tests\\Unit\\": "tests/unit"
         }
-    }
+    },
+    "suggest": {
+        "guzzlehttp/guzzle": "Provides default client for http requests execution."
+    },
 }
