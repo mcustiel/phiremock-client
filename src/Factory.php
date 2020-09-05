@@ -18,11 +18,11 @@
 
 namespace Mcustiel\Phiremock\Client;
 
-use GuzzleHttp\Client as GuzzleClient;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
-use Mcustiel\Phiremock\Common\Http\Implementation\GuzzleConnection;
+use Mcustiel\Phiremock\Client\Utils\Http\GuzzlePsr18Client;
 use Mcustiel\Phiremock\Factory as PhiremockFactory;
+use Psr\Http\Client\ClientInterface;
 
 class Factory
 {
@@ -57,11 +57,8 @@ class Factory
         );
     }
 
-    /** @return GuzzleConnection */
-    public function createRemoteConnection()
+    public function createRemoteConnection(): ClientInterface
     {
-        return new GuzzleConnection(
-            new GuzzleClient(self::CLIENT_CONFIG)
-        );
+        return new GuzzlePsr18Client();
     }
 }
