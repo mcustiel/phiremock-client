@@ -21,7 +21,6 @@
     "license": "GPL-3.0-or-later",
     "require": {
         "php": "^7.2",
-        "guzzlehttp/guzzle": "^6.0",
         "mcustiel/phiremock-common": "dev-master",
         "psr/http-client": "^1.0"
     },
