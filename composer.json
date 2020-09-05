@@ -52,5 +52,5 @@
     },
     "suggest": {
         "guzzlehttp/guzzle": "Provides default client for http requests execution."
-    },
+    }
 }
