@@ -18,6 +18,7 @@
 
 namespace Mcustiel\Phiremock\Client;
 
+use GuzzleHttp\Client as GuzzleClient;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\Http\GuzzlePsr18Client;
@@ -33,19 +34,17 @@ class Factory
     /** @var PhiremockFactory */
     private $phiremockFactory;
 
-    private function __construct(PhiremockFactory $factory)
+    public function __construct(PhiremockFactory $factory)
     {
         $this->phiremockFactory = $factory;
     }
 
-    /** @return self */
-    public static function createDefault()
+    public static function createDefault(): self
     {
-        return new self(new PhiremockFactory());
+        return new static(new PhiremockFactory());
     }
 
-    /** @return \Mcustiel\Phiremock\Client\Phiremock */
-    public function createPhiremockClient(Host $host, Port $port)
+    public function createPhiremockClient(Host $host, Port $port): Phiremock
     {
         return new Phiremock(
             $host,
@@ -59,6 +58,14 @@ class Factory
 
     public function createRemoteConnection(): ClientInterface
     {
+        if (!class_exists(GuzzleClient::class, true)) {
+            throw new \Exception('A default http client implementation is needed. ' . 'Please extend the factory to return a PSR18-compatible HttpClient or install Guzzle Http Client v6');
+        }
         return new GuzzlePsr18Client();
+    }
+
+    protected function getPhiremockFactory(): PhiremockFactory
+    {
+        return $this->phiremockFactory;
     }
 }
