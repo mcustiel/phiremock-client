@@ -18,7 +18,6 @@
 
 namespace Mcustiel\Phiremock\Client;
 
-use GuzzleHttp\Client as GuzzleClient;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\Http\GuzzlePsr18Client;
@@ -58,7 +57,7 @@ class Factory
 
     public function createRemoteConnection(): ClientInterface
     {
-        if (!class_exists(GuzzleClient::class, true)) {
+        if (!class_exists('\GuzzleHttp\Client', true)) {
             throw new \Exception('A default http client implementation is needed. ' . 'Please extend the factory to return a PSR18-compatible HttpClient or install Guzzle Http Client v6');
         }
         return new GuzzlePsr18Client();

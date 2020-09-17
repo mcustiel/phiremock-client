@@ -25,7 +25,7 @@ class ClearExpectationsCest
 
         $expectations = $this->_getPhiremockClient()->listExpectations();
         $I->assertCount(1, $expectations);
-        $this->_getPhiremockClient()->clearExpectations()    ;
+        $this->_getPhiremockClient()->clearExpectations();
         $expectations = $this->_getPhiremockClient()->listExpectations();
         $I->assertEmpty($expectations);
     }
