@@ -6,6 +6,7 @@ use ApiTester;
 use function Mcustiel\Phiremock\Client\contains;
 use function Mcustiel\Phiremock\Client\getRequest;
 use function Mcustiel\Phiremock\Client\isEqualTo;
+use function Mcustiel\Phiremock\Client\on;
 use Mcustiel\Phiremock\Client\Phiremock;
 use function Mcustiel\Phiremock\Client\request;
 use function Mcustiel\Phiremock\Client\respond as frespond;
@@ -42,7 +43,7 @@ class ExpectationCreationCest
     public function createsExpectationUsingHelperFunctions(ApiTester $I)
     {
         $this->_getPhiremockClient()->createExpectation(
-            Phiremock::on(
+            on(
                 getRequest()
                     ->andUrl(isEqualTo('/potato/tomato'))
                     ->andBody(contains('42'))

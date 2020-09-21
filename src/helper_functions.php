@@ -20,6 +20,7 @@ namespace Mcustiel\Phiremock\Client;
 
 use Mcustiel\Phiremock\Client\Utils\A;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
+use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
 use Mcustiel\Phiremock\Client\Utils\HttpResponseBuilder;
 use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Proxy;
@@ -120,4 +121,11 @@ function respond(int $statusCode): HttpResponseBuilder
 function proxyTo(string $url): ProxyResponseBuilder
 {
     return Proxy::to($url);
+}
+
+// ExpectationBuilder creator
+
+function on(ConditionsBuilder $builder): ExpectationBuilder
+{
+    return Phiremock::on($builder);
 }
