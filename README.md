@@ -200,6 +200,10 @@ Sets Phiremock Server to its initial state. This will cause Phiremock Server to:
 $phiremockClient->reset();
 ```
 
+## See also:
+
+Phiremock Server: https://github.com/mcustiel/phiremock-server
+
 ## Contributing:
 
 Just submit a pull request. Don't forget to run tests and php-cs-fixer first and write documentation.
@@ -209,5 +213,6 @@ Just submit a pull request. Don't forget to run tests and php-cs-fixer first and
 * Denis Rudoi ([@drudoi](https://github.com/drudoi))
 * Henrik Schmidt ([@mrIncompetent](https://github.com/mrIncompetent))
 * Nils Gajsek ([@linslin](https://github.com/linslin))
+* Florian Levis ([@Gounlaf](https://github.com/Gounlaf))
 
 And [everyone](https://github.com/mcustiel/phiremock/graphs/contributors) who submitted their Pull Requests.
