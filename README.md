@@ -83,7 +83,7 @@ $phiremockClient->createExpectation(
 
 ```
 
-Also a cleaner/shorter way to create expectations is provided by using utility functions:
+Also a cleaner/shorter way to create expectations is provided by using helper functions:
 
 ```php
 <?php
@@ -93,9 +93,10 @@ use function Mcustiel\Phiremock\Client\getRequest;
 use function Mcustiel\Phiremock\Client\isEqualTo;
 use function Mcustiel\Phiremock\Client\request;
 use function Mcustiel\Phiremock\Client\respond;
+use function Mcustiel\Phiremock\Client\on;
 // ...
 $phiremockClient->createExpectation(
-    Phiremock::on(
+    on(
         getRequest()
             ->andUrl(isEqualTo('/potato/tomato'))
             ->andBody(contains('42'))
@@ -110,7 +111,7 @@ $phiremockClient->createExpectation(
 ```
 
 ### Listing created expectations
-The `listExpecatations` method returns an array of instances of the Expectation class.
+The `listExpecatations` method returns an array of instances of the Expectation class containing all the current expectations checked by Phiremock Server.
 
 ```php
 <?php
@@ -118,18 +119,92 @@ $expectations = $phiremockClient->listExpectations();
 ```
 
 ### Clear all configured expectations
-This will cause Phiremock Server to return 404 for every non-phiremock-api request.
+This will remove all expectations checked, causing Phiremock Server to return 404 for every non-phiremock-api request.
 
 ```php
 <?php
 $phiremockClient->clearExpectations();
 ```
 
-### Contributing:
+### List requests received by Phiremock
+Use this method to get a list of Psr-compatible Requests received by Phiremock Server.
+
+Lists all requests:
+
+```php
+<?php
+$phiremockClient->listExecutions();
+```
+
+Lists requests matching condition:
+
+```php
+<?php
+$phiremockClient->listExecutions(getRequest()->andUrl(isEqualTo('/test'));
+```
+
+**Note:** Phiremock's API request are excluded from this list.
+
+### Count requests received by Phiremock
+Provides an integer >= 0 representing the amount of requests received by Phiremock Server.
+
+Count all requests:
+
+```php
+<?php
+$phiremockClient->listExecutions();
+```
+
+Count requests matching condition:
+
+```php
+<?php
+$phiremockClient->listExecutions(getRequest()->andUrl(isEqualTo('/test'));
+```
+
+**Note:** Phiremock's API request are excluded from this list.
+
+### Clear stored requests
+This will clean the list of requests saved on Phiremock Server and resets the counter to 0. 
+
+```php
+<?php
+$phiremockClient->clearRequests();
+```
+
+### Set Scenario State
+Force a scenario to have certain state on Phiremock Server.
+
+```php
+<?php
+$phiremockClient->setScenarioState('myScenario', 'loginExecuted');
+```
+
+### Reset Scenarios States
+Reset all scenarios to the initial state (Scenario.START).
+
+```php
+<?php
+$phiremockClient->resetScenarios();
+```
+
+### Reset all
+Sets Phiremock Server to its initial state. This will cause Phiremock Server to:
+1. clear all expectations.
+2. clear the stored requests.
+3. reset all the scenarios.
+4. reload all expectations stored in files.
+
+```php
+<?php
+$phiremockClient->reset();
+```
+
+## Contributing:
 
 Just submit a pull request. Don't forget to run tests and php-cs-fixer first and write documentation.
 
-### Thanks to:
+## Thanks to:
 
 * Denis Rudoi ([@drudoi](https://github.com/drudoi))
 * Henrik Schmidt ([@mrIncompetent](https://github.com/mrIncompetent))
