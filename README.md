@@ -200,15 +200,17 @@ Sets Phiremock Server to its initial state. This will cause Phiremock Server to:
 $phiremockClient->reset();
 ```
 
-## See also:
+## Appendix
+
+### See also:
 
 Phiremock Server: https://github.com/mcustiel/phiremock-server
 
-## Contributing:
+### Contributing:
 
 Just submit a pull request. Don't forget to run tests and php-cs-fixer first and write documentation.
 
-## Thanks to:
+### Thanks to:
 
 * Denis Rudoi ([@drudoi](https://github.com/drudoi))
 * Henrik Schmidt ([@mrIncompetent](https://github.com/mrIncompetent))
