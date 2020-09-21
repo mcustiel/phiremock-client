@@ -205,6 +205,7 @@ $phiremockClient->reset();
 ### See also:
 
 Phiremock Server: https://github.com/mcustiel/phiremock-server
+Examples in tests: https://github.com/mcustiel/phiremock-client/tree/master/tests/acceptance/api
 
 ### Contributing:
 
