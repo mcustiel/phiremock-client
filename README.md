@@ -24,6 +24,7 @@ Phiremock Client requires guzzle client v6 to work. This dependency can be avoid
 
 If guzzle client v6 is provided as a dependency no extra configuration is needed. If you want to use a different http client you need to provide it to phiremock server as a psr18-compatible client.
 For instance, if you want to use guzzle client v7 you need to extend phiremock server's factory class:
+
 ```php
 <?php
 namespace My\Namespace;
