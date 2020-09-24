@@ -18,13 +18,11 @@
 
 namespace Mcustiel\Phiremock\Client;
 
-use Laminas\Diactoros\Request as PsrRequest;
 use Laminas\Diactoros\Uri;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
-use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
 use Mcustiel\Phiremock\Common\Utils\ScenarioStateInfoToArrayConverter;
@@ -32,11 +30,14 @@ use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\HttpResponse;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
-use Mcustiel\Phiremock\Domain\Response;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Mcustiel\Phiremock\Domain\Version;
 use Psr\Http\Client\ClientInterface;
+use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\StreamFactoryInterface;
+
+use function GuzzleHttp\json_encode;
 
 class Phiremock
 {
@@ -63,13 +64,21 @@ class Phiremock
     /** @var Port */
     private $port;
 
+    /** @var RequestFactoryInterface */
+    private $requestFactory;
+
+    /** @var StreamFactoryInterface */
+    private $streamFactory;
+
     public function __construct(
         Host $host,
         Port $port,
         ClientInterface $remoteConnection,
         ExpectationToArrayConverter $expectationToArrayConverter,
         ArrayToExpectationConverter $arrayToExpectationConverter,
-        ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter
+        ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter,
+        RequestFactoryInterface $requestFactory,
+        StreamFactoryInterface $streamFactory
     ) {
         $this->host = $host;
         $this->port = $port;
@@ -77,6 +86,8 @@ class Phiremock
         $this->expectationToArrayConverter = $expectationToArrayConverter;
         $this->arrayToExpectationConverter = $arrayToExpectationConverter;
         $this->scenarioStateInfoToArrayConverter = $scenarioStateInfoToArrayConverter;
+        $this->requestFactory = $requestFactory;
+        $this->streamFactory = $streamFactory;
     }
 
     /** Creates an expectation with a response for a given request. */
@@ -93,11 +104,9 @@ class Phiremock
     public function createExpectationFromJson(string $body): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
-        $request = (new PsrRequest())
-            ->withUri($uri)
-            ->withMethod('post')
+        $request = $this->requestFactory->createRequest('POST', $uri)
             ->withHeader('Content-Type', 'application/json')
-            ->withBody(new StringStream($body));
+            ->withBody($this->streamFactory->createStream($body));
         $this->ensureIsExpectedResponse(201, $this->connection->sendRequest($request));
     }
 
@@ -105,7 +114,7 @@ class Phiremock
     public function reset(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
-        $request = (new PsrRequest())->withUri($uri)->withMethod('post');
+        $request = $this->requestFactory->createRequest('POST', $uri);
 
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
@@ -114,7 +123,7 @@ class Phiremock
     public function clearExpectations(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
-        $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
+        $request = $this->requestFactory->createRequest('DELETE', $uri);
 
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
@@ -123,12 +132,12 @@ class Phiremock
     public function listExpectations(): array
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
-        $request = (new PsrRequest())->withUri($uri)->withMethod('get');
+        $request = $this->requestFactory->createRequest('GET', $uri);
         $response = $this->connection->sendRequest($request);
 
         $this->ensureIsExpectedResponse(200, $response);
 
-        $arraysList = json_decode($response->getBody()->__toString(), true);
+        $arraysList = json_decode((string)$response->getBody(), true);
         $expectationsList = [];
 
         foreach ($arraysList as $expectationArray) {
@@ -143,10 +152,9 @@ class Phiremock
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
-        $request = (new PsrRequest())
-            ->withUri($uri)
-            ->withMethod('post')
+        $request = $this->requestFactory->createRequest('POST', $uri)
             ->withHeader('Content-Type', 'application/json');
+
         if ($requestBuilder !== null) {
             $requestBuilderResult = $requestBuilder->build();
             $expectation = new Expectation(
@@ -157,17 +165,13 @@ class Phiremock
                 new Version('2')
             );
             $jsonBody = json_encode($this->expectationToArrayConverter->convert($expectation));
-            $request = $request->withBody(
-                new StringStream(
-                    $jsonBody
-                )
-            );
+            $request = $request->withBody($this->streamFactory->createStream($jsonBody));
         }
 
         $response = $this->connection->sendRequest($request);
 
         $this->ensureIsExpectedResponse(200, $response);
-        $json = json_decode($response->getBody()->__toString());
+        $json = json_decode((string)$response->getBody());
 
         return $json->count;
     }
@@ -177,9 +181,7 @@ class Phiremock
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
 
-        $request = (new PsrRequest())
-            ->withUri($uri)
-            ->withMethod('put')
+        $request = $this->requestFactory->createRequest('PUT', $uri)
             ->withHeader('Content-Type', 'application/json');
         if ($requestBuilder !== null) {
             $requestBuilderResult = $requestBuilder->build();
@@ -190,8 +192,9 @@ class Phiremock
                 null,
                 new Version('2')
             );
+
             $request = $request->withBody(
-                new StringStream(
+                $this->streamFactory->createStream(
                     json_encode($this->expectationToArrayConverter->convert($expectation))
                 )
             );
@@ -210,12 +213,10 @@ class Phiremock
             new ScenarioState($scenarioState)
         );
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
-        $request = (new PsrRequest())
-            ->withUri($uri)
-            ->withMethod('put')
+        $request = $this->requestFactory->createRequest('PUT', $uri)
             ->withHeader('Content-Type', 'application/json')
             ->withBody(
-                new StringStream(
+                $this->streamFactory->createStream(
                     json_encode(
                         $this->scenarioStateInfoToArrayConverter->convert($scenarioStateInfo)
                     )
@@ -230,7 +231,7 @@ class Phiremock
     public function resetScenarios(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
-        $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
+        $request = $this->requestFactory->createRequest('DELETE', $uri);
 
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
@@ -239,7 +240,7 @@ class Phiremock
     public function resetRequestsCounter(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
-        $request = (new PsrRequest())->withUri($uri)->withMethod('delete');
+        $request = $this->requestFactory->createRequest('DELETE', $uri);
 
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
