@@ -4,8 +4,18 @@ modules:
         - \Helper\Api
         - Asserts
         - REST
+        - \Mcustiel\Codeception\Modules\PhiremockClient
     config:
         REST:
             depends: PhpBrowser
-            url: 'http://localhost:8086'        
-        
+            url: 'http://localhost:8086'
+        \Mcustiel\Codeception\Modules\PhiremockClient:
+            https: false
+env:
+    https:
+        modules:
+            config:
+                REST:
+                    url: 'https://localhost:8086'
+                \Mcustiel\Codeception\Modules\PhiremockClient:
+                    https: true

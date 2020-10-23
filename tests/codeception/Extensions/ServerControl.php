@@ -12,6 +12,9 @@ class ServerControl extends \Codeception\Extension
         Events::SUITE_BEFORE => 'suiteBefore',
         Events::SUITE_AFTER  => 'suiteAfter',
     ];
+    protected $config = [
+        'https' => false,
+    ];
 
     /** @var Process */
     private $application;
@@ -24,10 +27,26 @@ class ServerControl extends \Codeception\Extension
             'exec',
             './vendor/bin/phiremock',
             '-d',
-            '>',
-            codecept_log_dir('phiremock.log'),
-            '2>&1',
         ];
+        if ($this->config['https']) {
+            $commandLine = array_merge(
+                $commandLine,
+                [
+                    '--certificate=' . codecept_data_dir('certificate-cert.pem'),
+                    '--certificate-key=' . codecept_data_dir('certificate-key.key'),
+                ]
+            );
+        }
+
+        $commandLine += array_merge(
+            $commandLine,
+            [
+                '>',
+                codecept_log_dir('phiremock.log'),
+                '2>&1',
+            ]
+        );
+
         $this->application = Process::fromShellCommandline(implode(' ', $commandLine));
         $this->writeln($this->application->getCommandLine());
         $this->application->start();

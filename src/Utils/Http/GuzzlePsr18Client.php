@@ -14,7 +14,12 @@ class GuzzlePsr18Client implements ClientInterface
 
     public function __construct(GuzzleClient $client = null)
     {
-        $this->client = $client ?? new GuzzleClient(['allow_redirects' => true]);
+        $this->client = $client ?? new GuzzleClient(
+            [
+                'allow_redirects' => true,
+                'verify'          => false,
+            ]
+        );
     }
 
     public function sendRequest(RequestInterface $request): ResponseInterface

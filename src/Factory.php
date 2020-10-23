@@ -21,6 +21,7 @@ namespace Mcustiel\Phiremock\Client;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\Http\GuzzlePsr18Client;
+use Mcustiel\Phiremock\Client\Utils\Http\Scheme;
 use Mcustiel\Phiremock\Factory as PhiremockFactory;
 use Psr\Http\Client\ClientInterface;
 
@@ -43,7 +44,7 @@ class Factory
         return new static(new PhiremockFactory());
     }
 
-    public function createPhiremockClient(Host $host, Port $port): Phiremock
+    public function createPhiremockClient(Host $host, Port $port, ?Scheme $scheme = null): Phiremock
     {
         return new Phiremock(
             $host,
@@ -51,7 +52,21 @@ class Factory
             $this->createRemoteConnection(),
             $this->phiremockFactory->createV2UtilsFactory()->createExpectationToArrayConverter(),
             $this->phiremockFactory->createV2UtilsFactory()->createArrayToExpectationConverter(),
-            $this->phiremockFactory->createV2UtilsFactory()->createScenarioStateInfoToArrayConverter()
+            $this->phiremockFactory->createV2UtilsFactory()->createScenarioStateInfoToArrayConverter(),
+            $scheme
+        );
+    }
+
+    public function createSecurePhiremockClient(Host $host, Port $port): Phiremock
+    {
+        return new Phiremock(
+            $host,
+            $port,
+            $this->createRemoteConnection(),
+            $this->phiremockFactory->createV2UtilsFactory()->createExpectationToArrayConverter(),
+            $this->phiremockFactory->createV2UtilsFactory()->createArrayToExpectationConverter(),
+            $this->phiremockFactory->createV2UtilsFactory()->createScenarioStateInfoToArrayConverter(),
+            Scheme::createHttps()
         );
     }
 

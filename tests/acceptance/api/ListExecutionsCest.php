@@ -20,7 +20,7 @@ class ListExecutionsCest
             [
                 (object) [
                     'method'  => 'GET',
-                    'url'     => 'http://localhost:8086/tomato',
+                    'url'     => $I->getPhiremockScheme() . '://localhost:8086/tomato',
                     'headers' => (object) [
                         'Host' => [
                             'localhost:8086',
@@ -40,41 +40,9 @@ class ListExecutionsCest
 
     public function countsAllRequests(ApiTester $I)
     {
-        $getRequest = [
-            'method'  => 'GET',
-            'url'     => 'http://localhost:8086/tomato',
-            'headers' => [
-                'Host' => [
-                    'localhost:8086',
-                ],
-                'User-Agent' => [
-                    'Symfony BrowserKit',
-                ]
-            ],
-            'cookies' => [],
-            'body'    => '',
-        ];
-        $postRequest = [
-            'method'  => 'POST',
-            'url'     => 'http://localhost:8086/potato',
-            'headers' => [
-                'Host' => [
-                    'localhost:8086',
-                ],
-                'User-Agent' => [
-                    'Symfony BrowserKit',
-                ],
-                'Content-Type'   => ['application/json'],
-                'Referer'        => ['http://localhost:8086/tomato'],
-                'Content-Length' => ['20'],
-            ],
-            'cookies' => [],
-            'body'    => '{"banana":"coconut"}',
-        ];
-
         $expectedGetRequest = (object) [
             'method'  => 'GET',
-            'url'     => 'http://localhost:8086/tomato',
+            'url'     => $I->getPhiremockScheme() . '://localhost:8086/tomato',
             'headers' => (object) [
                 'Host' => [
                     'localhost:8086',
@@ -88,7 +56,7 @@ class ListExecutionsCest
         ];
         $expectedPostRequest = (object) [
             'method'  => 'POST',
-            'url'     => 'http://localhost:8086/potato',
+            'url'     => $I->getPhiremockScheme() . '://localhost:8086/potato',
             'headers' => (object) [
                 'Host' => [
                     'localhost:8086',
@@ -97,7 +65,7 @@ class ListExecutionsCest
                     'Symfony BrowserKit',
                 ],
                 'Content-Type'   => ['application/json'],
-                'Referer'        => ['http://localhost:8086/tomato'],
+                'Referer'        => [$I->getPhiremockScheme() . '://localhost:8086/tomato'],
                 'Content-Length' => ['20'],
             ],
             'cookies' => [],

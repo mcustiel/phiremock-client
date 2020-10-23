@@ -1,15 +1,8 @@
 extensions:
     enabled: 
         - Codeception\Extension\RunFailed
-        - Mcustiel\Codeception\Extensions\ServerControl
-
-env:
-    https:
-        extension:
-            enabled:
-                - Mcustiel\Codeception\Extensions\ServerControl:
-                    https: true
-
+        - Mcustiel\Codeception\Extensions\ServerControl:
+            https: true
 
 params: 
     - env

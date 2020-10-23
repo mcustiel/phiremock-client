@@ -39,9 +39,13 @@ function request(): ConditionsBuilder
     return new ConditionsBuilder();
 }
 
-function getRequest(): ConditionsBuilder
+function getRequest(string $url = null): ConditionsBuilder
 {
-    return A::getRequest();
+    $builder = A::getRequest();
+    if ($url) {
+        $builder->andUrl(isEqualTo($url));
+    }
+    return $builder;
 }
 
 function postRequest(): ConditionsBuilder
@@ -54,9 +58,13 @@ function putRequest(): ConditionsBuilder
     return A::putRequest();
 }
 
-function deleteRequest(): ConditionsBuilder
+function deleteRequest(string $url = null): ConditionsBuilder
 {
-    return A::deleteRequest();
+    $builder = A::deleteRequest();
+    if ($url) {
+        $builder->andUrl(isEqualTo($url));
+    }
+    return $builder;
 }
 
 function patchRequest(): ConditionsBuilder
@@ -128,4 +136,14 @@ function proxyTo(string $url): ProxyResponseBuilder
 function on(ConditionsBuilder $builder): ExpectationBuilder
 {
     return Phiremock::on($builder);
+}
+
+function onGetRequest(string $url = null): ExpectationBuilder
+{
+    return Phiremock::on(getRequest($url));
+}
+
+function onDeleteRequest(string $url = null): ConditionsBuilder
+{
+    return Phiremock::on(deleteRequest($url));
 }

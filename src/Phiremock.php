@@ -24,6 +24,7 @@ use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ExpectationBuilder;
+use Mcustiel\Phiremock\Client\Utils\Http\Scheme;
 use Mcustiel\Phiremock\Common\StringStream;
 use Mcustiel\Phiremock\Common\Utils\ArrayToExpectationConverter;
 use Mcustiel\Phiremock\Common\Utils\ExpectationToArrayConverter;
@@ -63,13 +64,17 @@ class Phiremock
     /** @var Port */
     private $port;
 
+    /** @var Scheme */
+    private $scheme;
+
     public function __construct(
         Host $host,
         Port $port,
         ClientInterface $remoteConnection,
         ExpectationToArrayConverter $expectationToArrayConverter,
         ArrayToExpectationConverter $arrayToExpectationConverter,
-        ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter
+        ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter,
+        Scheme $scheme = null
     ) {
         $this->host = $host;
         $this->port = $port;
@@ -77,6 +82,7 @@ class Phiremock
         $this->expectationToArrayConverter = $expectationToArrayConverter;
         $this->arrayToExpectationConverter = $arrayToExpectationConverter;
         $this->scenarioStateInfoToArrayConverter = $scenarioStateInfoToArrayConverter;
+        $this->scheme = $scheme ?? Scheme::createHttp();
     }
 
     /** Creates an expectation with a response for a given request. */
@@ -254,14 +260,7 @@ class Phiremock
         return new ExpectationBuilder($requestBuilder);
     }
 
-    /**
-     * Shortcut.
-     *
-     * @param string $method
-     * @param string $url
-     *
-     * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
-     */
+    /** Shortcut. */
     public static function onRequest(string $method, string $url): ExpectationBuilder
     {
         return new ExpectationBuilder(
@@ -272,7 +271,7 @@ class Phiremock
     private function createBaseUri(): Uri
     {
         return (new Uri())
-            ->withScheme('http')
+            ->withScheme($this->scheme->asString())
             ->withHost($this->host->asString())
             ->withPort($this->port->asInt());
     }
