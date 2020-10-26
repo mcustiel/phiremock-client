@@ -113,8 +113,7 @@ use function Mcustiel\Phiremock\Client\on;
 // ...
 $phiremockClient->createExpectation(
     on(
-        getRequest()
-            ->andUrl(isEqualTo('/potato/tomato'))
+        getRequest('/potato/tomato')
             ->andBody(contains('42'))
             ->andHeader('Accept', isEqualTo('application/banana'))
             ->andFormField('name', isEqualTo('potato'))
@@ -125,6 +124,9 @@ $phiremockClient->createExpectation(
     )->withPriority(5)
 );
 ```
+This code is equivalent to the one in the previous example.
+
+You can see the list of shortcuts here: https://github.com/mcustiel/phiremock-client/blob/master/src/helper_functions.php
 
 ### Listing created expectations
 The `listExpecatations` method returns an array of instances of the Expectation class containing all the current expectations checked by Phiremock Server.
