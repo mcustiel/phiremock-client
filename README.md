@@ -58,6 +58,21 @@ $phiremockClient = Factory::createDefault()->createPhiremockClient(new Host('my.
 
 Now you can use `$phiremockClient` to access all the configuration options of Phiremock Server. 
 
+*Note:* Phiremock will by default listen for http (unsecured) connections.
+
+#### Connection to a secure server
+
+If phiremock-server is listening for https connections. You can pass the scheme to use as a third argument:
+
+```php
+<?php
+use Mcustiel\Phiremock\Client\Connection\Host;
+use Mcustiel\Phiremock\Client\Connection\Port;
+use Mcustiel\Phiremock\Client\Connection\Scheme;
+
+$phiremockClient = Factory::createDefault()->createPhiremockClient(new Host('my.phiremock.host'), new Port('8443'), Scheme::createHttps());
+```
+
 ### Expectation creation
 
 ```php

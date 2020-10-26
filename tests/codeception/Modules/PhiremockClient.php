@@ -6,9 +6,9 @@ use Codeception\Lib\ModuleContainer;
 use Codeception\Module;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
+use Mcustiel\Phiremock\Client\Connection\Scheme;
 use Mcustiel\Phiremock\Client\Factory as ClientFactory;
 use Mcustiel\Phiremock\Client\Phiremock;
-use Mcustiel\Phiremock\Client\Utils\Http\Scheme;
 
 class PhiremockClient extends Module
 {

@@ -20,8 +20,8 @@ namespace Mcustiel\Phiremock\Client;
 
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
+use Mcustiel\Phiremock\Client\Connection\Scheme;
 use Mcustiel\Phiremock\Client\Utils\Http\GuzzlePsr18Client;
-use Mcustiel\Phiremock\Client\Utils\Http\Scheme;
 use Mcustiel\Phiremock\Factory as PhiremockFactory;
 use Psr\Http\Client\ClientInterface;
 
