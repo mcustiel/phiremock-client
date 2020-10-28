@@ -222,8 +222,9 @@ $phiremockClient->reset();
 
 ### See also:
 
-Phiremock Server: https://github.com/mcustiel/phiremock-server
-Examples in tests: https://github.com/mcustiel/phiremock-client/tree/master/tests/acceptance/api
+* Phiremock Server: https://github.com/mcustiel/phiremock-server
+* Phiremock Codeception Module: https://github.com/mcustiel/phiremock-codeception-module
+* Examples in tests: https://github.com/mcustiel/phiremock-client/tree/master/tests/acceptance/api
 
 ### Contributing:
 
