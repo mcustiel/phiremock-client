@@ -46,26 +46,26 @@ class HttpResponseBuilder extends ResponseBuilder
         $this->body = Body::createEmpty();
     }
 
-    public static function create(int $statusCode): self
+    public static function create(int $statusCode): HttpResponseBuilder
     {
         return new static(new StatusCode($statusCode));
     }
 
-    public function andBody(string $body): self
+    public function andBody(string $body): HttpResponseBuilder
     {
         $this->body = new Body($body);
 
         return $this;
     }
 
-    public function andBinaryBody(string $body): self
+    public function andBinaryBody(string $body): HttpResponseBuilder
     {
         $this->body = new BinaryBody($body);
 
         return $this;
     }
 
-    public function andHeader(string $header, string $value): self
+    public function andHeader(string $header, string $value): HttpResponseBuilder
     {
         $this->headers->setHeader(
             new Header(new HeaderName($header), new HeaderValue($value))

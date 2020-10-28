@@ -18,6 +18,7 @@
 
 namespace Mcustiel\Phiremock\Client;
 
+use Exception;
 use Mcustiel\Phiremock\Client\Connection\Host;
 use Mcustiel\Phiremock\Client\Connection\Port;
 use Mcustiel\Phiremock\Client\Connection\Scheme;
@@ -27,10 +28,6 @@ use Psr\Http\Client\ClientInterface;
 
 class Factory
 {
-    const CLIENT_CONFIG = [
-        'http_errors' => false,
-    ];
-
     /** @var PhiremockFactory */
     private $phiremockFactory;
 
@@ -44,6 +41,7 @@ class Factory
         return new static(new PhiremockFactory());
     }
 
+    /** @throws Exception */
     public function createPhiremockClient(Host $host, Port $port, ?Scheme $scheme = null): Phiremock
     {
         return new Phiremock(
@@ -70,10 +68,11 @@ class Factory
         );
     }
 
+    /** @throws Exception */
     public function createRemoteConnection(): ClientInterface
     {
         if (!class_exists('\GuzzleHttp\Client', true)) {
-            throw new \Exception('A default http client implementation is needed. ' . 'Please extend the factory to return a PSR18-compatible HttpClient or install Guzzle Http Client v6');
+            throw new Exception('A default http client implementation is needed. ' . 'Please extend the factory to return a PSR18-compatible HttpClient or install Guzzle Http Client v6');
         }
         return new GuzzlePsr18Client();
     }

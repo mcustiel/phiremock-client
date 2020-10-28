@@ -35,8 +35,10 @@ use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 use Mcustiel\Phiremock\Domain\ScenarioStateInfo;
 use Mcustiel\Phiremock\Domain\Version;
+use Psr\Http\Client\ClientExceptionInterface;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\ResponseInterface;
+use RuntimeException;
 
 class Phiremock
 {
@@ -84,17 +86,23 @@ class Phiremock
         $this->scheme = $scheme ?? Scheme::createHttp();
     }
 
-    /** Creates an expectation with a response for a given request. */
+    /**
+     * Creates an expectation with a response for a given request.
+     * @throws ClientExceptionInterface
+     */
     public function createExpectation(Expectation $expectation): void
     {
         $body = @json_encode($this->expectationToArrayConverter->convert($expectation));
         if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Error generating json body for request: ' . json_last_error_msg());
+            throw new RuntimeException('Error generating json body for request: ' . json_last_error_msg());
         }
         $this->createExpectationFromJson($body);
     }
 
-    /** Creates an expectation from a json configuration */
+    /**
+     * Creates an expectation from a json configuration
+     * @throws ClientExceptionInterface
+     */
     public function createExpectationFromJson(string $body): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
@@ -106,7 +114,10 @@ class Phiremock
         $this->ensureIsExpectedResponse(201, $this->connection->sendRequest($request));
     }
 
-    /** Restores pre-defined expectations and resets scenarios and requests counter. */
+    /**
+     * Restores pre-defined expectations and resets scenarios and requests counter.
+     * @throws ClientExceptionInterface
+     */
     public function reset(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_RESET_URL);
@@ -115,7 +126,10 @@ class Phiremock
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
 
-    /** Clears all the currently configured expectations. */
+    /**
+     * Clears all the currently configured expectations.
+     * @throws ClientExceptionInterface
+     */
     public function clearExpectations(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
@@ -124,7 +138,10 @@ class Phiremock
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
 
-    /** @return \Mcustiel\Phiremock\Domain\Expectation[] */
+    /**
+     * @return Expectation[]
+     * @throws ClientExceptionInterface
+     */
     public function listExpectations(): array
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXPECTATIONS_URL);
@@ -143,7 +160,7 @@ class Phiremock
         return $expectationsList;
     }
 
-    /** @return int */
+    /** @throws ClientExceptionInterface */
     public function countExecutions(?ConditionsBuilder $requestBuilder = null): int
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
@@ -177,7 +194,7 @@ class Phiremock
         return $json->count;
     }
 
-    /** @return array */
+    /** @throws ClientExceptionInterface */
     public function listExecutions(?ConditionsBuilder $requestBuilder = null): array
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
@@ -207,7 +224,10 @@ class Phiremock
         return json_decode($response->getBody()->__toString());
     }
 
-    /** Sets scenario state. */
+    /**
+     * Sets scenario state.
+     * @throws ClientExceptionInterface
+     */
     public function setScenarioState(string $scenarioName, string $scenarioState): void
     {
         $scenarioStateInfo = new ScenarioStateInfo(
@@ -231,7 +251,10 @@ class Phiremock
         $this->ensureIsExpectedResponse(200, $response);
     }
 
-    /** Resets all the scenarios to start state. */
+    /**
+     * Resets all the scenarios to start state.
+     * @throws ClientExceptionInterface
+     */
     public function resetScenarios(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_SCENARIOS_URL);
@@ -240,7 +263,10 @@ class Phiremock
         $this->ensureIsExpectedResponse(200, $this->connection->sendRequest($request));
     }
 
-    /** Resets all the requests counters to 0. */
+    /**
+     * Resets all the requests counters to 0.
+     * @throws ClientExceptionInterface
+     */
     public function resetRequestsCounter(): void
     {
         $uri = $this->createBaseUri()->withPath(self::API_EXECUTIONS_URL);
@@ -252,7 +278,7 @@ class Phiremock
     /**
      * Inits the fluent interface to create an expectation.
      *
-     * @return \Mcustiel\Phiremock\Client\Utils\ExpectationBuilder
+     * @return ExpectationBuilder
      */
     public static function on(ConditionsBuilder $requestBuilder): ExpectationBuilder
     {
@@ -275,23 +301,21 @@ class Phiremock
             ->withPort($this->port->asInt());
     }
 
-    /**
-     * @throws \RuntimeException
-     */
-    private function ensureIsExpectedResponse(int $statusCode, ResponseInterface $response)
+    /** @throws RuntimeException */
+    private function ensureIsExpectedResponse(int $statusCode, ResponseInterface $response): void
     {
         $responseStatusCode = $response->getStatusCode();
         if ($responseStatusCode !== $statusCode) {
             if ($responseStatusCode >= 500) {
                 $errors = json_decode($response->getBody()->__toString(), true)['details'];
 
-                throw new \RuntimeException('An error occurred creating the expectation: ' . ($errors ? var_export($errors, true) : '') . $response->getBody()->__toString());
+                throw new RuntimeException('An error occurred creating the expectation: ' . ($errors ? var_export($errors, true) : '') . $response->getBody()->__toString());
             }
 
             if ($responseStatusCode >= 400) {
-                throw new \RuntimeException('Request error while creating the expectation');
+                throw new RuntimeException('Request error while creating the expectation');
             }
-            throw new \RuntimeException('Unexpected response while creating the expectation');
+            throw new RuntimeException('Unexpected response while creating the expectation');
         }
     }
 }

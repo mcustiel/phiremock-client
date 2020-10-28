@@ -18,6 +18,8 @@
 
 namespace Mcustiel\Phiremock\Client\Connection;
 
+use InvalidArgumentException;
+
 class Scheme
 {
     public const HTTP = 'http';
@@ -32,12 +34,12 @@ class Scheme
         $this->scheme = $scheme;
     }
 
-    public static function createHttp(): self
+    public static function createHttp(): Scheme
     {
         return new self(self::HTTP);
     }
 
-    public static function createHttps(): self
+    public static function createHttps(): Scheme
     {
         return new self(self::HTTPS);
     }
@@ -47,10 +49,10 @@ class Scheme
         return $this->scheme;
     }
 
-    private function ensureIsValidScheme($scheme)
+    private function ensureIsValidScheme(string $scheme): void
     {
         if (preg_match('/^https?$/', $scheme) !== 1) {
-            throw new \InvalidArgumentException(sprintf('Invalid scheme %s', $scheme));
+            throw new InvalidArgumentException(sprintf('Invalid scheme %s', $scheme));
         }
     }
 }

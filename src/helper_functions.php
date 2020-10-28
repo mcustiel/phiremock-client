@@ -143,7 +143,7 @@ function onGetRequest(string $url = null): ExpectationBuilder
     return Phiremock::on(getRequest($url));
 }
 
-function onDeleteRequest(string $url = null): ConditionsBuilder
+function onDeleteRequest(string $url = null): ExpectationBuilder
 {
     return Phiremock::on(deleteRequest($url));
 }

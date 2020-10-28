@@ -49,7 +49,7 @@ class Is
 
     public static function sameJsonObjectAs($value): JsonEquals
     {
-        if (\is_string($value)) {
+        if (is_string($value)) {
             return MatcherFactory::jsonEquals($value);
         }
 

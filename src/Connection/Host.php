@@ -18,40 +18,37 @@
 
 namespace Mcustiel\Phiremock\Client\Connection;
 
+use InvalidArgumentException;
+
 class Host
 {
     /** @var string */
     private $host;
 
-    /**
-     * @param string $host
-     */
-    public function __construct($host)
+    public function __construct(string $host)
     {
         $this->ensureIsValidHost($host);
         $this->host = $host;
     }
 
-    /** @return self */
-    public static function createLocalhost()
+    public static function createLocalhost(): Host
     {
         return new self('localhost');
     }
 
-    /** @return string */
-    public function asString()
+    public function asString(): string
     {
         return $this->host;
     }
 
-    private function ensureIsValidHost($host)
+    private function ensureIsValidHost(string $host): void
     {
-        if (!\is_string($host)) {
-            throw new \InvalidArgumentException('Host must be a string value');
+        if (!is_string($host)) {
+            throw new InvalidArgumentException('Host must be a string value');
         }
         if (filter_var($host, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME) === false &&
             filter_var($host, FILTER_VALIDATE_IP) === false) {
-            throw new \InvalidArgumentException(sprintf('Invalid host number: %d', $host));
+            throw new InvalidArgumentException(sprintf('Invalid host number: %d', $host));
         }
     }
 }

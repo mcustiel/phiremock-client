@@ -29,14 +29,14 @@ abstract class ResponseBuilder
     /** @var Delay */
     private $delay;
 
-    public function andSetScenarioStateTo(string $scenarioState)
+    public function andSetScenarioStateTo(string $scenarioState): ResponseBuilder
     {
         $this->newScenarioState = new ScenarioState($scenarioState);
 
         return $this;
     }
 
-    public function andDelayInMillis(int $delay)
+    public function andDelayInMillis(int $delay): ResponseBuilder
     {
         $this->delay = new Delay($delay);
 
