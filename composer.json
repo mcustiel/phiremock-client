@@ -31,7 +31,7 @@
         "codeception/module-asserts": "^1.0",
         "codeception/module-rest": "^1.0",
         "codeception/module-phpbrowser": "^1.0",
-        "mcustiel/phiremock-server": "dev-feature/secure",
+        "mcustiel/phiremock-server": "dev-master",
         "symfony/process": "^3.0|^4.0|^5.0",
         "guzzlehttp/guzzle" : "^6.0"
     },

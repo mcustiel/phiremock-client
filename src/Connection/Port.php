@@ -38,9 +38,6 @@ class Port
 
     private function ensureIsValidPort(int $port): void
     {
-        if (!is_int($port)) {
-            throw new InvalidArgumentException('Port must be an integer value');
-        }
         if ($port < 1 || $port > 65535) {
             throw new InvalidArgumentException(sprintf('Invalid port number: %d', $port));
         }
