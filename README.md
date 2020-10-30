@@ -2,8 +2,8 @@
 
 Phiremock client provides a nice API to interact with [Phiremock Server](https://github.com/mcustiel/phiremock-server), allowing developers to setup expectations, clear state, scenarios etc. Through a fluent interface.
 
-[![Build Status](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mcustiel/phiremock/build-status/master)
-[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mcustiel/phiremock/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/badges/build.png?b=master)](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/build-status/master)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/mcustiel/phiremock-client/?branch=master)
 
 ## Installation
 
