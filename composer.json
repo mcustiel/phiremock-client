@@ -22,7 +22,7 @@
     "require": {
         "php": "^7.2",
         "ext-json": "*",
-        "mcustiel/phiremock-common": "v1.0.0",
+        "mcustiel/phiremock-common": "^1.0",
         "psr/http-client": "^1.0"
     },
     "require-dev": {
