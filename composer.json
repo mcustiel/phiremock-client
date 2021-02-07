@@ -19,11 +19,10 @@
     "type": "project",
     "description": "Client library to communicate with Phiremock server",
     "license": "GPL-3.0-or-later",
-    "repositories":[{"type":"github", "url":"https://github.com/oleg-andreyev/phiremock-common.git"}, {"type":"github","url":"https://github.com/oleg-andreyev/phiremock-server"}],
     "require": {
         "php": "^7.2|^8.0",
         "ext-json": "*",
-        "mcustiel/phiremock-common": "dev-php-8.0",
+        "mcustiel/phiremock-common": "^1.0",
         "psr/http-client": "^1.0"
     },
     "require-dev": {
@@ -32,7 +31,7 @@
         "codeception/module-asserts": "^1.0",
         "codeception/module-rest": "^1.0",
         "codeception/module-phpbrowser": "^1.0",
-        "mcustiel/phiremock-server": "dev-php-8.0-dev",
+        "mcustiel/phiremock-server": "^1.0",
         "symfony/process": "^3.0|^4.0|^5.0",
         "guzzlehttp/guzzle" : "^6.0"
     },
