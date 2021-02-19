@@ -34,7 +34,7 @@ class GuzzlePsr18Client implements ClientInterface
     {
         $this->client = $client ?? new GuzzleClient(
             [
-                'http_errors' => false,
+                'http_errors'     => false,
                 'allow_redirects' => true,
                 'verify'          => false,
             ]

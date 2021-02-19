@@ -139,8 +139,8 @@ class Phiremock
     }
 
     /**
-     * @return Expectation[]
      * @throws ClientExceptionInterface
+     * @return Expectation[]
      */
     public function listExpectations(): array
     {
