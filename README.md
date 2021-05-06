@@ -96,7 +96,7 @@ $phiremockClient->createExpectation(
         Respond::withStatusCode(418)
             ->andBody('Is the answer to the Ultimate Question of Life, The Universe, and Everything')
             ->andHeader('Content-Type', 'application/banana')
-    )->withPriority(5);
+    )->withPriority(5)
 );
 
 ```
