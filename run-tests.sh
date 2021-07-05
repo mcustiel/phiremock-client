@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
 ./vendor/bin/codecept run && \
-./vendor/bin/codecept -c codeception.https.yml run --env https
+./vendor/bin/codecept -c codeception.https.yml run --env https $@

@@ -53,6 +53,6 @@ class Is
             return MatcherFactory::jsonEquals($value);
         }
 
-        return MatcherFactory::jsonEquals(json_encode($value));
+        return MatcherFactory::jsonEquals(json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PRESERVE_ZERO_FRACTION));
     }
 }
