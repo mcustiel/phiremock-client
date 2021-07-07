@@ -33,6 +33,9 @@ use Mcustiel\Phiremock\Client\Utils\Respond;
 use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Expectation;
 use Mcustiel\Phiremock\Domain\Http\MethodsEnum;
+use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
+use function Mcustiel\Phiremock\Client\postRequest;
+use function Mcustiel\Phiremock\Client\isSameJsonAs;
 
 class ExpectationCreationCest
 {
@@ -98,6 +101,21 @@ class ExpectationCreationCest
         $response = $expectation->getResponse();
         $I->assertSame(418, $response->getStatusCode()->asInt());
         $I->assertSame('Is the answer to the Ultimate Question of Life, The Universe, and Everything', $response->getBody()->asString());
+    }
+
+    public function keepsFloatType(\ApiTester $I)
+    {
+        $this->_getPhiremockClient()->createExpectation(
+            Phiremock::on(
+                postRequest()->andUrl(isEqualTo('/some/path'))
+                ->andBody(isSameJsonAs(['whatIs' => 42.0]))
+            )->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
+        );
+
+        $I->sendPost('/some/path', ['whatIs' => 42]);
+        $I->seeResponseCodeIs(404);
+        $I->sendPost('/some/path', json_encode(['whatIs' => 42.0], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_PRESERVE_ZERO_FRACTION));
+        $I->seeResponseCodeIs(418);
     }
 
     public function createsCatchAllExpectation(\ApiTester $I)
