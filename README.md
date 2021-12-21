@@ -83,7 +83,7 @@ use Mcustiel\Phiremock\Client\Phiremock;
 use Mcustiel\Phiremock\Client\Utils\A;
 use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Client\Utils\Respond;
-
+use Mcustiel\Phiremock\Domain\Options\Priority;
 // ...
 $phiremockClient->createExpectation(
     Phiremock::on(
@@ -96,7 +96,7 @@ $phiremockClient->createExpectation(
         Respond::withStatusCode(418)
             ->andBody('Is the answer to the Ultimate Question of Life, The Universe, and Everything')
             ->andHeader('Content-Type', 'application/banana')
-    )->withPriority(5)
+    )->setPriority(new Priority(5))
 );
 
 ```
@@ -112,6 +112,7 @@ use function Mcustiel\Phiremock\Client\isEqualTo;
 use function Mcustiel\Phiremock\Client\request;
 use function Mcustiel\Phiremock\Client\respond;
 use function Mcustiel\Phiremock\Client\on;
+use Mcustiel\Phiremock\Domain\Options\Priority;
 // ...
 $phiremockClient->createExpectation(
     on(
@@ -123,7 +124,7 @@ $phiremockClient->createExpectation(
         respond(418)
             ->andBody('Is the answer to the Ultimate Question of Life, The Universe, and Everything')
             ->andHeader('Content-Type', 'application/banana')
-    )->withPriority(5)
+    )->setPriority(new Priority(5))
 );
 ```
 This code is equivalent to the one in the previous example.
@@ -172,14 +173,14 @@ Count all requests:
 
 ```php
 <?php
-$phiremockClient->listExecutions();
+$phiremockClient->countExecutions();
 ```
 
 Count requests matching condition:
 
 ```php
 <?php
-$phiremockClient->listExecutions(getRequest()->andUrl(isEqualTo('/test'));
+$phiremockClient->countExecutions(getRequest()->andUrl(isEqualTo('/test'));
 ```
 
 **Note:** Phiremock's API request are excluded from this list.
