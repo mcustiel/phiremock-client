@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This file is part of Phiremock.
  *
@@ -22,6 +23,8 @@ use Mcustiel\Phiremock\Client\Utils\ConditionsBuilder;
 use Mcustiel\Phiremock\Client\Utils\ConditionsBuilderResult;
 use Mcustiel\Phiremock\Client\Utils\Is;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\BodyCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\JsonPathCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\JsonPathConditionIterator;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Condition\MatchersEnum;
 use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
@@ -72,5 +75,50 @@ class ConditionsBuilderTest extends TestCase
         $this->assertSame('/potato', $request->getUrl()->getValue()->asString());
         $this->assertInstanceOf(ScenarioName::class, $result->getScenarioName());
         $this->assertSame('potatoScenarioName', $result->getScenarioName()->asString());
+    }
+
+    public function testCreatesARequestExpectationWithJsonPath(): void 
+    {
+        $this->builder = new ConditionsBuilder();
+        $this->builder
+            ->andJsonPath('user.id', Is::equalTo('123'))
+            ->andJsonPath('user.name', Is::containing('John'))
+            ->andJsonPath('user.role', Is::equalTo('admin'));
+
+        $result = $this->builder->build();
+
+        $this->assertInstanceOf(ConditionsBuilderResult::class, $result);
+        $this->assertInstanceOf(RequestConditions::class, $result->getRequestConditions());
+        $request = $result->getRequestConditions();
+
+        $this->assertTrue($request->hasJsonPath());
+        $jsonPath = $request->getJsonPath();
+        $this->assertInstanceOf(JsonPathConditionIterator::class, $jsonPath);
+
+        $count = 0;
+        $paths = [];
+        foreach ($jsonPath as $name => $condition) {
+            $paths[$name->asString()] = [
+                'matcher' => $condition->getMatcher()->getName(),
+                'value' => $condition->getValue()->asString()
+            ];
+            $count++;
+        }
+
+        $this->assertEquals(3, $count);
+        $this->assertEquals([
+            'user.id' => [
+                'matcher' => MatchersEnum::EQUAL_TO,
+                'value' => '123'
+            ],
+            'user.name' => [
+                'matcher' => MatchersEnum::CONTAINS,
+                'value' => 'John'
+            ],
+            'user.role' => [
+                'matcher' => MatchersEnum::EQUAL_TO,
+                'value' => 'admin'
+            ]
+        ], $paths);
     }
 }
