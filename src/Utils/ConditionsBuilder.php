@@ -24,6 +24,8 @@ use Mcustiel\Phiremock\Domain\Condition\Conditions\FormDataCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\FormFieldCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\HeaderConditionCollection;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\JsonPathCondition;
+use Mcustiel\Phiremock\Domain\Condition\Conditions\JsonPathConditionCollection;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\MethodCondition;
 use Mcustiel\Phiremock\Domain\Condition\Conditions\UrlCondition;
 use Mcustiel\Phiremock\Domain\Condition\Matchers\Equals;
@@ -32,6 +34,7 @@ use Mcustiel\Phiremock\Domain\Condition\Matchers\MatcherFactory;
 use Mcustiel\Phiremock\Domain\Conditions as RequestConditions;
 use Mcustiel\Phiremock\Domain\Http\FormFieldName;
 use Mcustiel\Phiremock\Domain\Http\HeaderName;
+use Mcustiel\Phiremock\Domain\Http\JsonPathName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioName;
 use Mcustiel\Phiremock\Domain\Options\ScenarioState;
 
@@ -51,11 +54,14 @@ class ConditionsBuilder
     private $scenarioIs;
     /** @var FormDataCondition */
     private $formData;
+    /** @var JsonPathConditionCollection */
+    private $jsonPath;
 
     public function __construct(MethodCondition $methodCondition = null, UrlCondition $urlCondition = null)
     {
         $this->headersConditions = new HeaderConditionCollection();
         $this->formData = new FormDataCondition();
+        $this->jsonPath = new JsonPathConditionCollection();
         $this->methodCondition = $methodCondition;
         $this->urlCondition = $urlCondition;
     }
@@ -127,6 +133,15 @@ class ConditionsBuilder
         return $this;
     }
 
+    public function andJsonPath(string $path, Matcher $matcher): self
+    {
+        $this->jsonPath->setPathCondition(
+            new JsonPathName($path),
+            new JsonPathCondition($matcher)
+        );
+        return $this;
+    }
+
     public function build(): ConditionsBuilderResult
     {
         return new ConditionsBuilderResult(
@@ -136,7 +151,8 @@ class ConditionsBuilder
                 $this->bodyCondition,
                 $this->headersConditions->iterator(),
                 $this->formData->iterator(),
-                $this->scenarioIs
+                $this->scenarioIs,
+                $this->jsonPath->iterator()
             ),
             $this->scenarioName
         );
