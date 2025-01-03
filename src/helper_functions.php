@@ -39,7 +39,7 @@ function request(): ConditionsBuilder
     return new ConditionsBuilder();
 }
 
-function getRequest(string $url = null): ConditionsBuilder
+function getRequest(?string $url = null): ConditionsBuilder
 {
     $builder = A::getRequest();
     if ($url) {
@@ -58,7 +58,7 @@ function putRequest(): ConditionsBuilder
     return A::putRequest();
 }
 
-function deleteRequest(string $url = null): ConditionsBuilder
+function deleteRequest(?string $url = null): ConditionsBuilder
 {
     $builder = A::deleteRequest();
     if ($url) {
@@ -138,12 +138,12 @@ function on(ConditionsBuilder $builder): ExpectationBuilder
     return Phiremock::on($builder);
 }
 
-function onGetRequest(string $url = null): ExpectationBuilder
+function onGetRequest(?string $url = null): ExpectationBuilder
 {
     return Phiremock::on(getRequest($url));
 }
 
-function onDeleteRequest(string $url = null): ExpectationBuilder
+function onDeleteRequest(?string $url = null): ExpectationBuilder
 {
     return Phiremock::on(deleteRequest($url));
 }

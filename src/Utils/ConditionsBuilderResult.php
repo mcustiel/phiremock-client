@@ -30,7 +30,7 @@ class ConditionsBuilderResult
 
     public function __construct(
         RequestConditions $request,
-        ScenarioName $scenarioName = null
+        ?ScenarioName $scenarioName = null
     ) {
         $this->request = $request;
         $this->scenarioName = $scenarioName;

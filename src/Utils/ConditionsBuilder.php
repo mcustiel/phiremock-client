@@ -52,7 +52,7 @@ class ConditionsBuilder
     /** @var FormDataCondition */
     private $formData;
 
-    public function __construct(MethodCondition $methodCondition = null, UrlCondition $urlCondition = null)
+    public function __construct(?MethodCondition $methodCondition = null, ?UrlCondition $urlCondition = null)
     {
         $this->headersConditions = new HeaderConditionCollection();
         $this->formData = new FormDataCondition();
