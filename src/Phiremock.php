@@ -75,7 +75,7 @@ class Phiremock
         ExpectationToArrayConverter $expectationToArrayConverter,
         ArrayToExpectationConverter $arrayToExpectationConverter,
         ScenarioStateInfoToArrayConverter $scenarioStateInfoToArrayConverter,
-        Scheme $scheme = null
+        ?Scheme $scheme = null
     ) {
         $this->host = $host;
         $this->port = $port;
