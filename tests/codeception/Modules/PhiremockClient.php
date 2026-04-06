@@ -29,10 +29,10 @@ use Mcustiel\Phiremock\Client\Phiremock;
 
 class PhiremockClient extends Module
 {
-    protected $config = ['https' => false];
+    protected array $config = ['https' => false];
 
     /** @var Scheme */
-    private $scheme;
+    private Scheme $scheme;
 
     public function __construct(ModuleContainer $moduleContainer, $config = null)
     {
