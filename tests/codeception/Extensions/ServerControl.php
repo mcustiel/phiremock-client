@@ -29,12 +29,11 @@ class ServerControl extends \Codeception\Extension
         Events::SUITE_BEFORE => 'suiteBefore',
         Events::SUITE_AFTER  => 'suiteAfter',
     ];
-    protected $config = [
+    protected array $config = [
         'https' => false,
     ];
 
-    /** @var Process */
-    private $application;
+    private Process $application;
 
     public function suiteBefore(SuiteEvent $event)
     {
