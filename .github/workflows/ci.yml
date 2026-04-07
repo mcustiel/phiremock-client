@@ -18,19 +18,11 @@ jobs:
           ini-values: post_max_size=256M, max_execution_time=180
           coverage: xdebug
           tools: php-cs-fixer, phpunit:${{ matrix.phpunit-versions }}
-      - uses: php-actions/phpunit@v3
-        env:
-          XDEBUG_MODE: coverage
-        with:
-          version: 11
-          configuration: phpunit.xml
-          php_extensions: "xdebug"
-          php_version: ${{ matrix.php-versions }}
-          coverage_clover: "build/coverage.xml"
-          test_suffix: Test.php
       - name: Validate composer.json
         run: composer validate
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress --no-interaction --no-suggest
+      - name: PHPUnit
+        run: php vendor/bin/phpunit
       - name: Codeception
         run: php vendor/bin/codecept run
