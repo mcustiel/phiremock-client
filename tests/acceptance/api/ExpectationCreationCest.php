@@ -108,7 +108,7 @@ class ExpectationCreationCest
         $this->_getPhiremockClient()->createExpectation(
             Phiremock::on(
                 postRequest()->andUrl(isEqualTo('/some/path'))
-                ->andBody(isSameJsonAs(['whatIs' => 42.0]))
+                    ->andBody(isSameJsonAs(['whatIs' => 42.0]))
             )->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
         );
 
@@ -146,6 +146,93 @@ class ExpectationCreationCest
         $I->seeResponseEquals('Is the answer to the Ultimate Question of Life, The Universe, and Everything');
     }
 
+    public function createsExpectationWithJsonPath(ApiTester $I)
+    {
+        $this->_getPhiremockClient()->createExpectation(
+            Phiremock::on(
+                postRequest()
+                    ->andUrl(isEqualTo('/some/path'))
+                    ->andJsonPath('user.id', isEqualTo('123'))
+            )->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
+        );
+
+        // Send request without matching jsonPath - should get 404
+        $I->sendPost('/some/path', ['whatIs' => 42]);
+        $I->seeResponseCodeIs(404);
+
+        // Send request with matching jsonPath - should get 418
+        $I->sendPost('/some/path', json_encode(['user' => ['id' => '123']]));
+        $I->seeResponseCodeIs(418);
+        $I->seeResponseEquals('Is the answer to the Ultimate Question of Life, The Universe, and Everything');
+    }
+
+    public function createsExpectationWithMultipleJsonPaths(\ApiTester $I)
+    {
+        $this->_getPhiremockClient()->createExpectation(
+            Phiremock::on(
+                postRequest()
+                    ->andUrl(isEqualTo('/some/path'))
+                    ->andJsonPath('user.id', isEqualTo('123'))
+                    ->andJsonPath('user.name', contains('John'))
+                    ->andJsonPath('user.age', isEqualTo('30'))
+            )->thenRespond(418, 'Is the answer to the Ultimate Question of Life, The Universe, and Everything')
+        );
+
+        $expectations = $this->_getPhiremockClient()->listExpectations();
+        $I->assertCount(1, $expectations);
+        $expectation = $expectations[0];
+        
+        $I->assertSame('2', $expectation->getVersion()->asString());
+        $I->assertTrue($expectation->getRequest()->hasJsonPath());
+        
+        $jsonPaths = $expectation->getRequest()->getJsonPath();
+        $I->assertCount(3, $jsonPaths);
+
+        $pathsArray = [];
+        foreach ($jsonPaths as $name => $condition) {
+            $pathsArray[$name->asString()] = [
+                'matcher' => $condition->getMatcher()->getName(),
+                'value' => $condition->getValue()->asString()
+            ];
+        }
+
+        $I->assertEquals([
+            'user.id' => [
+                'matcher' => 'isEqualTo',
+                'value' => '123'
+            ],
+            'user.name' => [
+                'matcher' => 'contains',
+                'value' => 'John'
+            ],
+            'user.age' => [
+                'matcher' => 'isEqualTo',
+                'value' => '30'
+            ]
+        ], $pathsArray);
+
+        // Проверяем что запрос с соответствующими значениями проходит
+        $I->sendPost('/some/path', json_encode([
+            'user' => [
+                'id' => '123',
+                'name' => 'John Doe',
+                'age' => '30'
+            ]
+        ]));
+        $I->seeResponseCodeIs(418);
+        $I->seeResponseEquals('Is the answer to the Ultimate Question of Life, The Universe, and Everything');
+
+        // Проверяем что запрос с неверными значениями не проходит
+        $I->sendPost('/some/path', json_encode([
+            'user' => [
+                'id' => '124',
+                'name' => 'Jane Doe',
+                'age' => '25'
+            ]
+        ]));
+        $I->seeResponseCodeIs(404);
+    }
+
     private function assertExpectationWasCorrectlyCreated(ApiTester $I, array $expectations)
     {
         $I->assertCount(1, $expectations);
@@ -170,6 +257,20 @@ class ExpectationCreationCest
         $I->assertSame('name', $expectation->getRequest()->getFormFields()->key()->asString());
         $I->assertSame(MatchersEnum::EQUAL_TO, $expectation->getRequest()->getFormFields()->current()->getMatcher()->getName());
         $I->assertSame('potato', $expectation->getRequest()->getFormFields()->current()->getValue()->get());
+
+        // Add jsonPath assertions if needed
+        if ($expectation->getRequest()->hasJsonPath()) {
+            $jsonPaths = $expectation->getRequest()->getJsonPath();
+            $jsonPathArray = iterator_to_array($jsonPaths);
+            
+            foreach ($jsonPathArray as $pathName => $pathCondition) {
+                // Проверяем что путь и значение соответствуют ожидаемым
+                if ($pathName->asString() === 'user.id') {
+                    $I->assertSame(MatchersEnum::EQUAL_TO, $pathCondition->getMatcher()->getName());
+                    $I->assertSame('123', $pathCondition->getValue()->asString());
+                }
+            }
+        }
 
         /** @var \Mcustiel\Phiremock\Domain\HttpResponse $response */
         $response = $expectation->getResponse();
